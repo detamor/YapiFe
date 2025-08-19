@@ -1,42 +1,48 @@
-export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+import {
+  validateEmail as secureValidateEmail,
+  validatePhone as secureValidatePhone,
+  validatePassword as secureValidatePassword,
+} from './security';
+
+// Re-export secure validation functions
+export const validateEmail = secureValidateEmail;
+export const validatePhone = secureValidatePhone;
+export const validatePassword = secureValidatePassword;
+
+// Additional validation functions
+export const validateName = (name: string): boolean => {
+  if (!name || typeof name !== 'string') return false;
+
+  // Remove extra spaces and check length
+  const trimmedName = name.trim();
+  if (trimmedName.length < 2 || trimmedName.length > 100) return false;
+
+  // Check for valid characters (letters, spaces, dots, hyphens)
+  const nameRegex = /^[a-zA-Z\s\.\-']+$/;
+  return nameRegex.test(trimmedName);
 };
 
-export const validatePhone = (phone: string): boolean => {
-  const phoneRegex = /^(\+62|62|0)[0-9]{9,13}$/;
-  return phoneRegex.test(phone.replace(/[\s-]/g, ''));
+export const validateAmount = (amount: number): boolean => {
+  return amount > 0 && amount <= 1000000000; // Max 1 billion
 };
 
-export const validatePassword = (password: string): {
-  isValid: boolean;
-  errors: string[];
-} => {
-  const errors: string[] = [];
-  
-  if (password.length < 8) {
-    errors.push('Password minimal 8 karakter');
-  }
-  
-  if (!/(?=.*[a-z])/.test(password)) {
-    errors.push('Password harus mengandung huruf kecil');
-  }
-  
-  if (!/(?=.*[A-Z])/.test(password)) {
-    errors.push('Password harus mengandung huruf besar');
-  }
-  
-  if (!/(?=.*\d)/.test(password)) {
-    errors.push('Password harus mengandung angka');
-  }
-  
-  return {
-    isValid: errors.length === 0,
-    errors
-  };
+export const validateStory = (story: string): string => {
+  if (!story || typeof story !== 'string') return '';
+
+  const trimmedStory = story.trim();
+  if (trimmedStory.length < 10) return 'Cerita minimal 10 karakter';
+  if (trimmedStory.length > 2000) return 'Cerita maksimal 2000 karakter';
+
+  return '';
 };
 
+export const sanitizeInput = (input: string): string => {
+  if (!input || typeof input !== 'string') return '';
 
-
-
-
+  // Remove potentially dangerous characters
+  return input
+    .replace(/[<>]/g, '') // Remove < and >
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+=/gi, '') // Remove event handlers
+    .trim();
+};

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { AuthTokenManager } from '../utils/secureStorage';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -7,28 +8,48 @@ export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
+  timeout: 30000, // 30 seconds timeout
+  withCredentials: true, // Enable cookies for CSRF protection
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
+  const tokenManager = AuthTokenManager.getInstance();
+  const token = tokenManager.getAuthToken();
+
+  if (token && tokenManager.isTokenValid(token)) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log('🔑 Token found, adding Authorization header', {
+    console.log('🔑 Secure token found, adding Authorization header', {
       tokenLength: token.length,
       tokenPreview: token.substring(0, 20) + '...',
     });
   } else {
-    console.log('⚠️ No token found in localStorage');
+    console.log('⚠️ No valid token found in secure storage');
+    // Remove invalid token
+    if (token) {
+      tokenManager.removeAuthToken();
+    }
   }
+
+  // Add CSRF token if available
+  const csrfToken = document
+    .querySelector('meta[name="csrf-token"]')
+    ?.getAttribute('content');
+  if (csrfToken) {
+    config.headers['X-CSRF-Token'] = csrfToken;
+  }
+
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    const tokenManager = AuthTokenManager.getInstance();
+
     if (error.response?.status === 401) {
-      const token = localStorage.getItem('access_token');
+      const token = tokenManager.getAuthToken();
       console.log('❌ 401 Unauthorized error:', {
         url: error.config?.url,
         method: error.config?.method,
@@ -38,13 +59,27 @@ api.interceptors.response.use(
         responseData: error.response?.data,
       });
 
-      // Only clear token if it's clearly invalid (too short)
-      if (!token || token.length < 50) {
-        console.log('🗑️ Clearing invalid token');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
+      // Clear invalid token and redirect to login
+      if (token) {
+        console.log('🗑️ Clearing invalid token from secure storage');
+        tokenManager.removeAuthToken();
+
+        // Redirect to login page
+        if (window.location.pathname !== '/auth/login') {
+          window.location.href = '/auth/login';
+        }
       }
     }
+
+    // Handle other security-related errors
+    if (error.response?.status === 403) {
+      console.log('🚫 403 Forbidden - Access denied');
+    }
+
+    if (error.response?.status === 429) {
+      console.log('⏰ 429 Too Many Requests - Rate limited');
+    }
+
     return Promise.reject(error);
   }
 );

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import Header from './Header';
 import Footer from './Footer';
+import SecurityWarning from '../security/SecurityWarning';
 
 const Layout: React.FC = () => {
   const { isLoading } = useAuth();
@@ -22,6 +23,7 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
       <Footer />
+      <SecurityWarning />
     </div>
   );
 };

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { donationsService } from '../../services/donations';
-import { validateEmail, validatePhone } from '../../utils/validation';
+import {
+  validateEmail,
+  validatePhone,
+  validateName,
+  sanitizeInput,
+} from '../../utils/validation';
 import toast from 'react-hot-toast';
 
 const DonationForm: React.FC = () => {
@@ -92,6 +97,9 @@ const DonationForm: React.FC = () => {
 
     if (!formData.donatorName.trim()) {
       newErrors.donatorName = 'Nama donatur wajib diisi';
+    } else if (!validateName(formData.donatorName)) {
+      newErrors.donatorName =
+        'Nama hanya boleh mengandung huruf, spasi, titik, dan tanda hubung';
     }
 
     if (!formData.email.trim()) {
@@ -127,7 +135,14 @@ const DonationForm: React.FC = () => {
       return;
     }
 
-    donationMutation.mutate(formData);
+    // Sanitize input data before sending
+    const sanitizedData = {
+      ...formData,
+      donatorName: sanitizeInput(formData.donatorName),
+      purpose: sanitizeInput(formData.purpose),
+    };
+
+    donationMutation.mutate(sanitizedData);
   };
 
   return (

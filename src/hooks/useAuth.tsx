@@ -7,6 +7,13 @@ import {
 } from 'react';
 import { User } from '../types';
 import { authService, LoginData, RegisterData } from '../services/auth';
+import {
+  AuthTokenManager,
+  UserDataManager,
+  SessionManager,
+  clearAllSecureStorage,
+} from '../utils/secureStorage';
+import { LoginRateLimiter } from '../utils/security';
 
 interface AuthContextType {
   user: User | null;
@@ -34,28 +41,57 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+
+  // Initialize security managers
+  const tokenManager = AuthTokenManager.getInstance();
+  const userDataManager = UserDataManager.getInstance();
+  const sessionManager = SessionManager.getInstance();
+  const rateLimiter = new LoginRateLimiter();
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('access_token');
-      const userData = localStorage.getItem('user');
+      console.log('🔍 Initializing auth...');
 
-      if (token && userData) {
+      // Clear corrupted storage on first load
+      if (localStorage.getItem('storage_initialized') !== 'true') {
+        console.log('🧹 First time load, clearing corrupted storage...');
+        clearAllSecureStorage();
+        localStorage.setItem('storage_initialized', 'true');
+      }
+
+      const token = tokenManager.getAuthToken();
+      const userData = userDataManager.getUserData<User>();
+
+      console.log('🔑 Auth check:', {
+        hasToken: !!token,
+        tokenLength: token?.length,
+        hasUserData: !!userData,
+        userData: userData,
+      });
+
+      if (token && userData && tokenManager.isTokenValid(token)) {
         try {
           const response = await authService.getProfile();
           setUser(response.data);
+          userDataManager.setUserData(response.data);
+          sessionManager.startSession();
         } catch (error) {
-          console.log('Profile fetch failed, using localStorage data:', error);
-          // Fallback to localStorage data instead of clearing everything
+          console.log(
+            'Profile fetch failed, using secure storage data:',
+            error
+          );
+          // Fallback to secure storage data
           try {
-            const parsedUser = JSON.parse(userData);
-            setUser(parsedUser);
+            setUser(userData);
+            sessionManager.startSession();
           } catch (parseError) {
             console.log(
-              'Failed to parse localStorage user data, clearing auth'
+              'Failed to get user data from secure storage, clearing auth'
             );
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('user');
+            tokenManager.removeAuthToken();
+            userDataManager.removeUserData();
+            sessionManager.endSession();
           }
         }
       }
@@ -66,28 +102,60 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (data: LoginData) => {
-    const response = await authService.login(data);
-    const { user: userData, access_token } = response.data;
+    // Check rate limiting
+    if (rateLimiter.isBlocked(data.email)) {
+      throw new Error(
+        'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.'
+      );
+    }
 
-    console.log('🔐 Login successful:', {
-      userData,
-      tokenLength: access_token?.length,
-      tokenPreview: access_token
-        ? access_token.substring(0, 20) + '...'
-        : 'none',
-    });
+    try {
+      const response = await authService.login(data);
+      const { user: userData, access_token } = response.data;
 
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
+      console.log('🔐 Login successful:', {
+        userData,
+        tokenLength: access_token?.length,
+        tokenPreview: access_token
+          ? access_token.substring(0, 20) + '...'
+          : 'none',
+      });
+
+      // Store data securely
+      tokenManager.setAuthToken(access_token);
+      userDataManager.setUserData(userData);
+      sessionManager.startSession();
+
+      // Reset rate limiting on successful login
+      rateLimiter.resetAttempts(data.email);
+      setLoginAttempts(0);
+
+      setUser(userData);
+    } catch (error) {
+      // Record failed login attempt
+      rateLimiter.recordAttempt(data.email);
+      setLoginAttempts((prev) => prev + 1);
+
+      // Check if user is blocked
+      if (rateLimiter.isBlocked(data.email)) {
+        throw new Error(
+          'Akun Anda diblokir sementara karena terlalu banyak percobaan login gagal.'
+        );
+      }
+
+      throw error;
+    }
   };
 
   const register = async (data: RegisterData) => {
     const response = await authService.register(data);
     const { user: userData, access_token } = response.data;
 
-    localStorage.setItem('access_token', access_token);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Store data securely
+    tokenManager.setAuthToken(access_token);
+    userDataManager.setUserData(userData);
+    sessionManager.startSession();
+
     setUser(userData);
   };
 
@@ -95,10 +163,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authService.logout();
     } catch (error) {
-      console.log('Logout API failed, clearing local data anyway:', error);
+      console.log('Logout API failed, clearing secure data anyway:', error);
     } finally {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
+      // Clear all secure data
+      tokenManager.removeAuthToken();
+      userDataManager.removeUserData();
+      sessionManager.endSession();
       setUser(null);
     }
   };
