@@ -40,6 +40,12 @@ api.interceptors.request.use((config) => {
     config.headers['X-CSRF-Token'] = csrfToken;
   }
 
+  // Don't set Content-Type for FormData (let browser set it with boundary)
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+    console.log('📤 FormData detected, removing Content-Type header');
+  }
+
   return config;
 });
 

@@ -42,7 +42,14 @@ export class SecureLocalStorage {
       // Try to decrypt first
       try {
         const decryptedValue = decryptData(encryptedValue);
-        return JSON.parse(decryptedValue);
+
+        // Check if it's JSON or plain string
+        try {
+          return JSON.parse(decryptedValue);
+        } catch {
+          // If not JSON, return as string
+          return decryptedValue;
+        }
       } catch (decryptError) {
         console.log(
           'Decryption failed, clearing corrupted data:',
@@ -113,13 +120,27 @@ export class SecureCookieStorage {
       if (!encryptedValue) return null;
 
       const decryptedValue = decryptData(encryptedValue);
-      return JSON.parse(decryptedValue);
+
+      // Check if it's JSON or plain string
+      try {
+        return JSON.parse(decryptedValue);
+      } catch {
+        // If not JSON, return as string
+        return decryptedValue as T;
+      }
     } catch (error) {
       console.error('Failed to decrypt cookie:', error);
       // Fallback to plain cookie
       try {
         const plainValue = Cookies.get(key);
-        return plainValue ? JSON.parse(plainValue) : null;
+        if (!plainValue) return null;
+
+        // Check if it's JSON or plain string
+        try {
+          return JSON.parse(plainValue);
+        } catch {
+          return plainValue as T;
+        }
       } catch {
         return null;
       }
@@ -152,6 +173,10 @@ export class AuthTokenManager {
 
   // Set auth token
   setAuthToken(token: string): void {
+    console.log('🔐 Setting auth token:', {
+      tokenLength: token.length,
+      tokenPreview: token.substring(0, 20) + '...',
+    });
     this.secureStorage.setItem(STORAGE_CONFIG.TOKEN_KEY, token);
     this.secureCookies.setCookie(STORAGE_CONFIG.TOKEN_KEY, token);
   }
@@ -163,6 +188,13 @@ export class AuthTokenManager {
     if (!token) {
       token = this.secureCookies.getCookie<string>(STORAGE_CONFIG.TOKEN_KEY);
     }
+
+    console.log('🔍 Getting auth token:', {
+      hasToken: !!token,
+      tokenLength: token?.length,
+      tokenPreview: token ? token.substring(0, 20) + '...' : 'none',
+    });
+
     return token;
   }
 

@@ -102,8 +102,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (data: LoginData) => {
-    // Check rate limiting
-    if (rateLimiter.isBlocked(data.email)) {
+    // Check rate limiting (disabled for development)
+    const isDevelopment = import.meta.env.MODE === 'development';
+    if (!isDevelopment && rateLimiter.isBlocked(data.email)) {
       throw new Error(
         'Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.'
       );
@@ -111,7 +112,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     try {
       const response = await authService.login(data);
-      const { user: userData, access_token } = response.data;
+
+      console.log('🔍 Full login response:', {
+        response: response,
+        data: response.data,
+        success: response.success,
+        message: response.message,
+        dataKeys: Object.keys(response.data || {}),
+        userData: response.data?.user,
+        tokenData: response.data?.access_token,
+      });
+
+      // Try different possible token field names
+      const userData = response.data?.user || response.data?.userData;
+      const access_token =
+        response.data?.access_token ||
+        response.data?.token ||
+        response.data?.accessToken ||
+        response.data?.authToken;
 
       console.log('🔐 Login successful:', {
         userData,
@@ -121,8 +139,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           : 'none',
       });
 
+      // Check if we have valid data
+      if (!userData) {
+        throw new Error('Data user tidak valid dari server');
+      }
+
+      if (!access_token) {
+        console.warn('⚠️ No access token received, but login was successful');
+        // Continue without token for now
+      }
+
       // Store data securely
-      tokenManager.setAuthToken(access_token);
+      if (access_token) {
+        tokenManager.setAuthToken(access_token);
+      }
       userDataManager.setUserData(userData);
       sessionManager.startSession();
 
@@ -132,15 +162,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       setUser(userData);
     } catch (error) {
-      // Record failed login attempt
-      rateLimiter.recordAttempt(data.email);
-      setLoginAttempts((prev) => prev + 1);
+      // Record failed login attempt (disabled for development)
+      const isDevelopment = import.meta.env.MODE === 'development';
+      if (!isDevelopment) {
+        rateLimiter.recordAttempt(data.email);
+        setLoginAttempts((prev) => prev + 1);
 
-      // Check if user is blocked
-      if (rateLimiter.isBlocked(data.email)) {
-        throw new Error(
-          'Akun Anda diblokir sementara karena terlalu banyak percobaan login gagal.'
-        );
+        // Check if user is blocked
+        if (rateLimiter.isBlocked(data.email)) {
+          throw new Error(
+            'Akun Anda diblokir sementara karena terlalu banyak percobaan login gagal.'
+          );
+        }
       }
 
       throw error;

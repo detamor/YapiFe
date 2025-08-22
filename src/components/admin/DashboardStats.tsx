@@ -44,8 +44,9 @@ const DashboardStats: React.FC = () => {
     queryKey: ['dashboard-stats'],
     queryFn: reportsService.getDashboard,
     staleTime: 5 * 60 * 1000,
-    retry: 1, // Only retry once
+    retry: 1,
     retryDelay: 1000,
+    enabled: false,
     onError: (error) => {
       console.log('🚨 Dashboard stats error:', {
         message: error.message,
@@ -93,6 +94,9 @@ const DashboardStats: React.FC = () => {
   // Use mock data if API fails
   const data = error ? mockData : dashboardData?.data || mockData;
 
+  // Show demo mode message
+  const isDemoMode = error || !dashboardData;
+
   const stats = [
     {
       name: 'Total Anak',
@@ -134,9 +138,9 @@ const DashboardStats: React.FC = () => {
 
   return (
     <div>
-      {error && (
-        <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <div className="flex">
+      {isDemoMode && (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center">
             <div className="flex-shrink-0">
               <svg
                 className="h-5 w-5 text-yellow-400"
@@ -151,10 +155,39 @@ const DashboardStats: React.FC = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-yellow-700">
-                <strong>Mode Demo:</strong> Menampilkan data contoh karena API
-                tidak tersedia.
-              </p>
+              <h3 className="text-sm font-medium text-yellow-800">Mode Demo</h3>
+              <div className="mt-2 text-sm text-yellow-700">
+                <p>Menampilkan data contoh karena API tidak tersedia.</p>
+                <div className="mt-2 space-x-2">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="text-yellow-800 underline hover:text-yellow-900"
+                  >
+                    Refresh halaman
+                  </button>
+                  <span className="text-yellow-600">|</span>
+                  <button
+                    onClick={() => {
+                      console.log('🔍 Testing backend connection manually...');
+                      fetch('http://localhost:5000/health')
+                        .then((res) => res.json())
+                        .then((data) => {
+                          console.log('✅ Backend is running:', data);
+                          alert('Backend berjalan dengan baik!');
+                        })
+                        .catch((err) => {
+                          console.error('❌ Backend connection failed:', err);
+                          alert(
+                            'Backend tidak dapat diakses. Pastikan server berjalan di port 5000.'
+                          );
+                        });
+                    }}
+                    className="text-yellow-800 underline hover:text-yellow-900"
+                  >
+                    Test koneksi backend
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -8,13 +8,19 @@ interface ChildCardProps {
 
 const ChildCard: React.FC<ChildCardProps> = ({ child }) => {
   const age = calculateAge(child.dateOfBirth);
-  const mainImage = child.images?.[0] || '';
+  const mainImage = child.images?.[0]?.url || child.images?.[0] || '';
 
   return (
     <div className="card hover:shadow-lg transition-shadow duration-300">
       <div className="relative">
         <img
-          src={mainImage}
+          src={
+            mainImage.startsWith('http')
+              ? mainImage
+              : mainImage.startsWith('/uploads')
+              ? mainImage
+              : `/uploads${mainImage}`
+          }
           alt={child.name}
           className="w-full h-48 object-cover"
           onError={(e) => {

@@ -7,7 +7,7 @@ const DashboardPage: React.FC = () => {
     {
       title: 'Kelola Anak-anak',
       description: 'Tambah, edit, dan kelola data anak-anak YAPI',
-      icon: '👶',
+      icon: '📊',
       link: '/admin/children',
       color: 'bg-blue-500 hover:bg-blue-600',
     },
