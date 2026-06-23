@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { donationsService } from '../../services/donations';
+import { api } from '../../services/api';
 import {
   validateEmail,
   validatePhone,
@@ -10,6 +12,9 @@ import {
 import toast from 'react-hot-toast';
 
 const DonationForm: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const childNameParam = searchParams.get('childName') || '';
+
   const [formData, setFormData] = useState({
     donatorName: '',
     email: '',
@@ -20,9 +25,49 @@ const DonationForm: React.FC = () => {
     purpose: '',
     paymentMethod: '',
     isAnonymous: false,
+    sponsoredChild: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Fetch children list to populate the dropdown
+  const { data: children } = useQuery({
+    queryKey: ['children-list-donations'],
+    queryFn: async () => {
+      const response = await api.get('/children');
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+
+  // Extract children array
+  const childrenList = (() => {
+    let arr = [];
+    if (children?.data && Array.isArray(children.data)) {
+      arr = children.data;
+    } else if (children?.data && typeof children.data === 'object') {
+      arr = children.data.children || children.data.data || [];
+    } else if (Array.isArray(children)) {
+      arr = children;
+    }
+    return arr;
+  })();
+
+  const finalChildrenList = childrenList;
+
+  useEffect(() => {
+    if (childNameParam) {
+      const decodedName = decodeURIComponent(childNameParam);
+      setFormData((prev) => ({
+        ...prev,
+        sponsoredChild: decodedName,
+        category: 'Pendidikan', // Set to Pendidikan by default if sponsoring
+        purpose: `Donasi khusus bersponsor untuk anak asuh bernama ${decodedName}.`,
+      }));
+    }
+  }, [childNameParam]);
+
 
   const donationMutation = useMutation({
     mutationFn: donationsService.create,
@@ -38,6 +83,7 @@ const DonationForm: React.FC = () => {
         purpose: '',
         paymentMethod: '',
         isAnonymous: false,
+        sponsoredChild: '',
       });
     },
     onError: (error: any) => {
@@ -346,6 +392,34 @@ const DonationForm: React.FC = () => {
                   <p className="mt-1 text-sm text-red-600">{errors.category}</p>
                 )}
               </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="sponsoredChild"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Sponsori Anak Asuh (Opsional)
+              </label>
+              <select
+                id="sponsoredChild"
+                name="sponsoredChild"
+                value={formData.sponsoredChild}
+                onChange={handleChange}
+                className="input-field"
+              >
+                <option value="">Tidak mensponsori anak asuh tertentu</option>
+                {finalChildrenList.map((child: any) => (
+                  <option key={child._id || child.id} value={child.name}>
+                    {child.name}
+                  </option>
+                ))}
+              </select>
+              {formData.sponsoredChild && (
+                <p className="mt-1 text-xs text-green-600">
+                  ✨ Anda mensponsori <strong>{formData.sponsoredChild}</strong>. Donasi Anda akan disalurkan khusus untuk kebutuhan pendukung anak ini.
+                </p>
+              )}
             </div>
 
             <div>

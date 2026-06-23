@@ -64,10 +64,10 @@ const DashboardStats: React.FC = () => {
 
   // Mock data for when API is not available
   const mockData = {
-    children: { total: 25, active: 23, inactive: 2 },
-    donations: { totalAmount: 15000000, totalCount: 45, pending: 3 },
-    activities: { ongoing: 4, completed: 12, upcoming: 2 },
-    testimonials: { approved: 18, pending: 5, total: 23 },
+    children: { total: 0, active: 0, inactive: 0 },
+    donations: { totalAmount: 0, totalCount: 0, pending: 0 },
+    activities: { ongoing: 0, completed: 0, upcoming: 0 },
+    testimonials: { approved: 0, pending: 0, total: 0 },
   };
 
   if (isLoading) {

@@ -19,54 +19,6 @@ const ChildrenPage: React.FC = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Mock data sebagai fallback
-  const mockChildren = [
-    {
-      id: '1',
-      name: 'Ahmad Rizki',
-      dateOfBirth: '2015-03-15',
-      gender: 'male' as const,
-      images: [
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-      ],
-      story:
-        'Ahmad adalah anak yang ceria dan suka belajar. Dia bercita-cita menjadi dokter untuk membantu orang lain.',
-      currentStatus: {
-        living: 'Dengan keluarga',
-        health: 'Sehat',
-        education: 'SD Kelas 3',
-      },
-      skills: ['Membaca', 'Matematika', 'Menggambar'],
-      isActive: true,
-      isPublic: true,
-      isFeatured: true,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-    },
-    {
-      id: '2',
-      name: 'Siti Nurhaliza',
-      dateOfBirth: '2016-07-22',
-      gender: 'female' as const,
-      images: [
-        'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400',
-      ],
-      story:
-        'Siti sangat menyukai musik dan bernyanyi. Dia ingin menjadi penyanyi terkenal suatu hari nanti.',
-      currentStatus: {
-        living: 'Dengan keluarga',
-        health: 'Sehat',
-        education: 'SD Kelas 2',
-      },
-      skills: ['Bernyanyi', 'Menari', 'Bahasa Inggris'],
-      isActive: true,
-      isPublic: true,
-      isFeatured: false,
-      createdAt: '2024-01-01',
-      updatedAt: '2024-01-01',
-    },
-  ];
-
   // Transform API data to match ChildCard interface
   const transformChild = (child: any) => ({
     id: child._id,
@@ -96,7 +48,7 @@ const ChildrenPage: React.FC = () => {
     updatedAt: child.updatedAt,
   });
 
-  // Use API data if available, otherwise use mock data
+  // Use API data if available
   const displayChildren = (() => {
     // Handle different response structures like in admin
     let childrenArray = [];

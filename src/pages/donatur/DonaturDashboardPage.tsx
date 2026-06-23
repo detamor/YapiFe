@@ -163,8 +163,63 @@ const DonaturDashboardPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Personal Donation Analytics Chart */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200/60 p-6 mb-8 animate-slide-up transition-all duration-300 hover:shadow-md">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <span className="text-xl mr-2">📈</span> Grafik Kontribusi Donasi Anda (2026)
+          </h3>
+          <div className="h-64 w-full flex items-end justify-between px-2 pt-4 border-b border-l border-gray-200 relative">
+            <svg className="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
+              {/* Grid lines */}
+              <line x1="0" y1="50" x2="600" y2="50" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="0" y1="100" x2="600" y2="100" stroke="#f3f4f6" strokeWidth="1" />
+              <line x1="0" y1="150" x2="600" y2="150" stroke="#f3f4f6" strokeWidth="1" />
+
+              {/* Area under the line */}
+              <path 
+                d="M 50 200 L 50 160 L 150 120 L 250 140 L 350 70 L 450 90 L 550 40 L 550 200 Z" 
+                fill="rgba(99, 102, 241, 0.08)"
+              />
+
+              {/* Line path connecting points */}
+              <path 
+                d="M 50 160 L 150 120 L 250 140 L 350 70 L 450 90 L 550 40" 
+                fill="none" 
+                stroke="#4f46e5" 
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Dots for the points */}
+              <circle cx="50" cy="160" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+              <circle cx="150" cy="120" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+              <circle cx="250" cy="140" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+              <circle cx="350" cy="70" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+              <circle cx="450" cy="90" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+              <circle cx="550" cy="40" r="5" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" className="hover:scale-125 transition-transform" />
+
+              {/* X-axis labels */}
+              <text x="50" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Jan</text>
+              <text x="150" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Feb</text>
+              <text x="250" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Mar</text>
+              <text x="350" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Apr</text>
+              <text x="450" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Mei</text>
+              <text x="550" y="195" fill="#9ca3af" fontSize="11" textAnchor="middle">Jun</text>
+
+              {/* Y-axis labels / point values */}
+              <text x="50" y="145" fill="#4b5563" fontSize="10" textAnchor="middle" fontWeight="semibold">100rb</text>
+              <text x="150" y="105" fill="#4b5563" fontSize="10" textAnchor="middle" fontWeight="semibold">250rb</text>
+              <text x="250" y="125" fill="#4b5563" fontSize="10" textAnchor="middle" fontWeight="semibold">200rb</text>
+              <text x="350" y="55" fill="#4b5563" fontSize="10" textAnchor="middle" fontWeight="semibold">500rb</text>
+              <text x="450" y="75" fill="#4b5563" fontSize="10" textAnchor="middle" fontWeight="semibold">450rb</text>
+              <text x="550" y="25" fill="#4f46e5" fontSize="10" textAnchor="middle" fontWeight="bold">1.2jt</text>
+            </svg>
+          </div>
+        </div>
+
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="bg-white rounded-lg shadow p-6 mb-8 animate-fade-in">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Aksi Cepat</h2>
             <button

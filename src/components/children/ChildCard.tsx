@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Child } from '../../types';
 import { calculateAge } from '../../utils/dateUtils';
 
@@ -7,6 +8,7 @@ interface ChildCardProps {
 }
 
 const ChildCard: React.FC<ChildCardProps> = ({ child }) => {
+  const navigate = useNavigate();
   const age = calculateAge(child.dateOfBirth);
   const mainImage = child.images?.[0]?.url || child.images?.[0] || '';
 
@@ -144,8 +146,11 @@ const ChildCard: React.FC<ChildCardProps> = ({ child }) => {
               month: 'long',
             })}
           </div>
-          <button className="btn-primary text-sm px-4 py-2">
-            Bantu Sekarang
+          <button 
+            onClick={() => navigate(`/donations?childName=${encodeURIComponent(child.name)}`)}
+            className="btn-primary text-sm px-4 py-2"
+          >
+            Sponsori Anak
           </button>
         </div>
       </div>

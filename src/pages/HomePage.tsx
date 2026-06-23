@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   HeartIcon,
@@ -9,7 +9,43 @@ import {
 import TestimonialForm from '../components/testimonials/TestimonialForm';
 import IframeMap from '../components/maps/IframeMap';
 
+const activitiesPhotos = [
+  { src: '/images/activities/yapi1.webp', title: 'Kegiatan Sosial', description: 'Program bantuan untuk anak-anak' },
+  { src: '/images/activities/yapi 2.webp', title: 'Kunjungan Tamu', description: 'Menerima kunjungan dari donatur' },
+  { src: '/images/activities/yapi3.jpg', title: 'Program Pendidikan', description: 'Mendukung pendidikan anak-anak' },
+  { src: '/images/activities/yapi4.jpg', title: 'Kegiatan Komunitas', description: 'Bersama membangun masa depan' },
+  { src: '/images/activities/yapi 5.jpg', title: 'Program Kesehatan', description: 'Perawatan kesehatan anak-anak' },
+  { src: '/images/activities/yapi 6.jpg', title: 'Kegiatan Belajar', description: 'Program pembelajaran dan bimbingan' },
+  { src: '/images/activities/yapi 7.jpg', title: 'Kegiatan Olahraga', description: 'Aktivitas fisik dan rekreasi' },
+  { src: '/images/activities/yapi 8.jpg', title: 'Kegiatan Seni', description: 'Program kreativitas dan seni' },
+  { src: '/images/activities/yapi liburan.jpg', title: 'Liburan Bersama', description: 'Kegiatan rekreasi dan liburan' },
+  { src: '/images/activities/kebahagian yapi.jpg', title: 'Kebahagiaan Bersama', description: 'Momen kebahagiaan anak-anak' },
+  { src: '/images/activities/yapi 9.jpg', title: 'Program Pelatihan', description: 'Pelatihan keterampilan untuk anak-anak' },
+  { src: '/images/activities/yapi 10.jpg', title: 'Kegiatan Keagamaan', description: 'Program spiritual dan keagamaan' }
+];
+
 const HomePage: React.FC = () => {
+  const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
+
+  const showPrevPhoto = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (activePhotoIndex !== null) {
+      setActivePhotoIndex((prevIndex) => 
+        prevIndex === 0 ? activitiesPhotos.length - 1 : prevIndex! - 1
+      );
+    }
+  };
+
+  const showNextPhoto = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (activePhotoIndex !== null) {
+      setActivePhotoIndex((prevIndex) => 
+        prevIndex === activitiesPhotos.length - 1 ? 0 : prevIndex! + 1
+      );
+    }
+  };
+
+
   const features = [
     {
       icon: HeartIcon,
@@ -181,197 +217,35 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi1.webp"
-                alt="Kegiatan YAPI Medan 1"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Sosial</h3>
-                  <p className="text-sm text-gray-200">
-                    Program bantuan untuk anak-anak
-                  </p>
+            {activitiesPhotos.map((photo, index) => (
+              <div 
+                key={index} 
+                className="group relative overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover-scale"
+                onClick={() => setActivePhotoIndex(index)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setActivePhotoIndex(index);
+                  }
+                }}
+              >
+                <img
+                  src={photo.src}
+                  alt={photo.title}
+                  className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="font-semibold text-lg">{photo.title}</h3>
+                    <p className="text-sm text-gray-200">
+                      {photo.description}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 2.webp"
-                alt="Kegiatan YAPI Medan 2"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kunjungan Tamu</h3>
-                  <p className="text-sm text-gray-200">
-                    Menerima kunjungan dari donatur
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi3.jpg"
-                alt="Kegiatan YAPI Medan 3"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Program Pendidikan</h3>
-                  <p className="text-sm text-gray-200">
-                    Mendukung pendidikan anak-anak
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi4.jpg"
-                alt="Kegiatan YAPI Medan 4"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Komunitas</h3>
-                  <p className="text-sm text-gray-200">
-                    Bersama membangun masa depan
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 5.jpg"
-                alt="Kegiatan YAPI Medan 5"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Program Kesehatan</h3>
-                  <p className="text-sm text-gray-200">
-                    Perawatan kesehatan anak-anak
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 6.jpg"
-                alt="Kegiatan YAPI Medan 6"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Belajar</h3>
-                  <p className="text-sm text-gray-200">
-                    Program pembelajaran dan bimbingan
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 7.jpg"
-                alt="Kegiatan YAPI Medan 7"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Olahraga</h3>
-                  <p className="text-sm text-gray-200">
-                    Aktivitas fisik dan rekreasi
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 8.jpg"
-                alt="Kegiatan YAPI Medan 8"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Seni</h3>
-                  <p className="text-sm text-gray-200">
-                    Program kreativitas dan seni
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi liburan.jpg"
-                alt="Liburan YAPI Medan"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Liburan Bersama</h3>
-                  <p className="text-sm text-gray-200">
-                    Kegiatan rekreasi dan liburan
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/kebahagian yapi.jpg"
-                alt="Kebahagiaan YAPI Medan"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kebahagiaan Bersama</h3>
-                  <p className="text-sm text-gray-200">
-                    Momen kebahagiaan anak-anak
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 9.jpg"
-                alt="Kegiatan YAPI Medan 9"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Program Pelatihan</h3>
-                  <p className="text-sm text-gray-200">
-                    Pelatihan keterampilan untuk anak-anak
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">
-              <img
-                src="/images/activities/yapi 10.jpg"
-                alt="Kegiatan YAPI Medan 10"
-                className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-semibold text-lg">Kegiatan Keagamaan</h3>
-                  <p className="text-sm text-gray-200">
-                    Program spiritual dan keagamaan
-                  </p>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="text-center mt-12">
@@ -396,7 +270,73 @@ const HomePage: React.FC = () => {
             </Link>
           </div>
         </div>
+
+        {/* Lightbox Modal */}
+        {activePhotoIndex !== null && (
+          <div 
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4 animate-fade-in"
+            onClick={() => setActivePhotoIndex(null)}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); setActivePhotoIndex(null); }}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 p-2 focus:outline-none transition-colors"
+              aria-label="Tutup galeri"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Prev Button */}
+            <button 
+              onClick={showPrevPhoto}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
+              aria-label="Foto sebelumnya"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            {/* Image Container */}
+            <div 
+              className="relative max-w-4xl max-h-[75vh] flex items-center justify-center animate-zoom-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={activitiesPhotos[activePhotoIndex].src} 
+                alt={activitiesPhotos[activePhotoIndex].title} 
+                className="max-w-full max-h-[75vh] object-contain rounded-md shadow-2xl"
+              />
+            </div>
+
+            {/* Text / Captions */}
+            <div 
+              className="mt-6 text-center text-white max-w-2xl px-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold">{activitiesPhotos[activePhotoIndex].title}</h3>
+              <p className="text-gray-300 mt-2 text-sm">{activitiesPhotos[activePhotoIndex].description}</p>
+              <span className="inline-block mt-3 px-3 py-1 bg-white/10 text-xs rounded-full">
+                {activePhotoIndex + 1} / {activitiesPhotos.length}
+              </span>
+            </div>
+
+            {/* Next Button */}
+            <button 
+              onClick={showNextPhoto}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/20 text-white p-3 rounded-full focus:outline-none transition-all duration-200 hover:scale-105"
+              aria-label="Foto berikutnya"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        )}
       </section>
+
 
       {/* Testimonial Section */}
       <section className="py-20 bg-white">
