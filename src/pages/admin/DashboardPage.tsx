@@ -47,6 +47,13 @@ const DashboardPage: React.FC = () => {
       color: 'bg-purple-500 hover:bg-purple-600',
     },
     {
+      title: 'Manajemen Sponsorship',
+      description: 'Kelola penugasan donatur dan anak asuh secara manual',
+      icon: '🤝',
+      link: '/admin/sponsorship',
+      color: 'bg-emerald-600 hover:bg-emerald-700',
+    },
+    {
       title: 'Pengaturan Sistem',
       description: 'Kelola pengaturan website dan user',
       icon: '⚙️',

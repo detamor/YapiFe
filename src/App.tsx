@@ -8,7 +8,9 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DonationPage from './pages/donations/DonationPage';
+import PaymentStatusPage from './pages/donations/PaymentStatusPage'; // 💳 NEW: Midtrans status receiver
 import ChildrenPage from './pages/children/ChildrenPage';
+import ChildDetailPage from './pages/children/ChildDetailPage'; // 👶 NEW: Child stories & detail
 import ContactPage from './pages/ContactPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import TestimonialsPage from './pages/TestimonialsPage';
@@ -16,6 +18,7 @@ import DashboardPage from './pages/admin/DashboardPage';
 import ChildrenManagementPage from './pages/admin/ChildrenManagementPage';
 import ActivitiesManagementPage from './pages/admin/ActivitiesManagementPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
+import SponsorshipManagementPage from './pages/admin/SponsorshipManagementPage'; // 🤝 NEW: Admin sponsorship dashboard
 import DonaturDashboardPage from './pages/donatur/DonaturDashboardPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
@@ -32,7 +35,9 @@ function App() {
                 <Route path="register" element={<RegisterPage />} />
               </Route>
               <Route path="donations" element={<DonationPage />} />
+              <Route path="donations/status" element={<PaymentStatusPage />} />
               <Route path="children" element={<ChildrenPage />} />
+              <Route path="children/:id" element={<ChildDetailPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="activities" element={<ActivitiesPage />} />
               <Route path="testimonials" element={<TestimonialsPage />} />
@@ -78,6 +83,14 @@ function App() {
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <UserManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="sponsorship"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <SponsorshipManagementPage />
                     </ProtectedRoute>
                   }
                 />

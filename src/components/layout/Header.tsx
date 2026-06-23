@@ -28,7 +28,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-teal shadow-md border-b border-teal-light z-50 sticky top-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
@@ -37,24 +37,24 @@ const Header: React.FC = () => {
                 <img
                   src="/yapi.jpg"
                   alt="YAPI Medan Logo"
-                  className="w-10 h-10 object-cover rounded-lg"
+                  className="w-10 h-10 object-cover rounded-lg border border-teal-light"
                 />
-                <span className="ml-3 text-xl font-bold text-gray-900">
+                <span className="ml-3 text-xl font-serif font-bold text-parchment">
                   YAPI Medan
                 </span>
               </div>
             </Link>
           </div>
 
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    ? 'text-amber bg-teal-light shadow-sm'
+                    : 'text-parchment/80 hover:text-amber hover:bg-teal-light'
                 }`}
               >
                 {item.name}
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
                 {user?.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-parchment/80 hover:text-amber px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Admin Dashboard
                   </Link>
@@ -76,13 +76,13 @@ const Header: React.FC = () => {
                 {(user?.role === 'donatur' || user?.role === 'volunteer') && (
                   <Link
                     to="/donatur"
-                    className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-parchment/80 hover:text-amber px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Dashboard
                   </Link>
                 )}
                 <div className="relative group">
-                  <button className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">
+                  <button className="flex items-center space-x-2 text-parchment hover:text-amber px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none">
                     <span>{user?.name}</span>
                     <svg
                       className="w-4 h-4"
@@ -98,10 +98,10 @@ const Header: React.FC = () => {
                       />
                     </svg>
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="absolute right-0 mt-2 w-48 bg-teal border border-teal-light rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block w-full text-left px-4 py-2 text-sm text-parchment/80 hover:text-amber hover:bg-teal-light transition-colors"
                     >
                       Keluar
                     </button>
@@ -112,13 +112,13 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/auth/login"
-                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-parchment/80 hover:text-amber px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Masuk
                 </Link>
                 <Link
                   to="/auth/register"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-colors duration-200"
+                  className="bg-amber text-ink px-4 py-2 rounded-md text-sm font-semibold hover:bg-amber-dark transition-all duration-200 shadow-sm"
                 >
                   Daftar
                 </Link>
@@ -129,7 +129,7 @@ const Header: React.FC = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-700 hover:text-indigo-600 p-2"
+              className="text-parchment/80 hover:text-amber p-2 focus:outline-none"
             >
               {isMobileMenuOpen ? (
                 <XMarkIcon className="h-6 w-6" />
@@ -142,16 +142,16 @@ const Header: React.FC = () => {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+        <div className="md:hidden animate-fade-in">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-teal border-t border-teal-light">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`block px-3 py-2 rounded-md text-base font-medium transition-all ${
                   isActive(item.href)
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'
+                    ? 'text-amber bg-teal-light'
+                    : 'text-parchment/80 hover:text-amber hover:bg-teal-light'
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -164,14 +164,14 @@ const Header: React.FC = () => {
                 {user?.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-parchment/80 hover:text-amber hover:bg-teal-light"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                 )}
-                <div className="pt-4 pb-3 border-t border-gray-200">
-                  <div className="px-3 py-2 text-sm font-medium text-gray-700">
+                <div className="pt-4 pb-3 border-t border-teal-light">
+                  <div className="px-3 py-2 text-sm font-medium text-amber">
                     {user?.name}
                   </div>
                   <button
@@ -179,24 +179,24 @@ const Header: React.FC = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+                    className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-parchment/80 hover:text-amber hover:bg-teal-light"
                   >
                     Keluar
                   </button>
                 </div>
               </>
             ) : (
-              <div className="pt-4 pb-3 border-t border-gray-200 space-y-2">
+              <div className="pt-4 pb-3 border-t border-teal-light space-y-2">
                 <Link
                   to="/auth/login"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-parchment/80 hover:text-amber hover:bg-teal-light"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Masuk
                 </Link>
                 <Link
                   to="/auth/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium bg-indigo-600 text-white hover:bg-indigo-700"
+                  className="block px-3 py-2 rounded-md text-base font-semibold bg-amber text-ink text-center hover:bg-amber-dark"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Daftar

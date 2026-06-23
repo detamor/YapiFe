@@ -47,7 +47,7 @@ const DashboardStats: React.FC = () => {
     retry: 1,
     retryDelay: 1000,
     enabled: false,
-    onError: (error) => {
+    onError: (error: any) => {
       console.log('🚨 Dashboard stats error:', {
         message: error.message,
         status: error.response?.status,

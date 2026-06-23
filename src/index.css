@@ -4,34 +4,72 @@
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
     scroll-behavior: smooth;
   }
   
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-parchment text-ink antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300 hover:shadow-md transform active:scale-95;
+    @apply bg-teal text-parchment px-4 py-2 rounded-md hover:bg-teal-light focus:outline-none focus:ring-2 focus:ring-teal-light transition-all duration-300 hover:shadow-md transform active:scale-95 font-sans font-semibold;
+  }
+
+  .btn-accent {
+    @apply bg-amber text-ink px-4 py-2 rounded-md hover:bg-amber-dark focus:outline-none focus:ring-2 focus:ring-amber-dark transition-all duration-300 hover:shadow-md transform active:scale-95 font-sans font-semibold;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 active:scale-95;
+    @apply bg-parchment-dim text-ink px-4 py-2 rounded-md hover:bg-gray-300/50 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-300 active:scale-95 font-sans;
   }
   
   .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200;
+    @apply w-full px-3 py-2 border border-gray-300 bg-parchment/30 rounded-md focus:outline-none focus:ring-2 focus:ring-teal focus:border-teal transition-all duration-200 text-ink;
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 transition-all duration-300 hover:shadow-lg;
+    @apply bg-white rounded-lg shadow-sm overflow-hidden border border-parchment-dim transition-all duration-300 hover:shadow-md;
   }
 
   .glass-card {
-    @apply bg-white/85 backdrop-blur-md rounded-lg shadow-sm border border-gray-200/60 p-6 transition-all duration-300 hover:shadow-md hover:border-gray-300/80;
+    @apply bg-white/70 backdrop-blur-md rounded-lg shadow-sm border border-parchment-dim/80 p-6 transition-all duration-300 hover:shadow-md hover:border-parchment-dim;
+  }
+
+  /* Ulos Batak Traditional Weave Divider: diagonal two-way weave in amber + teal */
+  .weave-divider {
+    height: 12px;
+    width: 100%;
+    background-color: #F2E9D8;
+    background-image: 
+      repeating-linear-gradient(45deg, rgba(232, 163, 61, 0.25) 0px, rgba(232, 163, 61, 0.25) 2px, transparent 2px, transparent 10px),
+      repeating-linear-gradient(-45deg, rgba(27, 59, 54, 0.2) 0px, rgba(27, 59, 54, 0.2) 2px, transparent 2px, transparent 10px);
+    border-top: 1px solid rgba(27, 59, 54, 0.1);
+    border-bottom: 1px solid rgba(27, 59, 54, 0.1);
+  }
+
+  /* Ulos Batak Weave Progress Bar */
+  .weave-bar {
+    height: 10px;
+    background-color: #F2E9D8;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .weave-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    background-color: #E8A33D;
+    background-image: repeating-linear-gradient(45deg, rgba(27, 59, 54, 0.25) 0px, rgba(27, 59, 54, 0.25) 2px, transparent 2px, transparent 8px);
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 

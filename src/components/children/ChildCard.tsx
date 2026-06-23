@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Child } from '../../types';
 import { calculateAge } from '../../utils/dateUtils';
 
@@ -10,148 +10,114 @@ interface ChildCardProps {
 const ChildCard: React.FC<ChildCardProps> = ({ child }) => {
   const navigate = useNavigate();
   const age = calculateAge(child.dateOfBirth);
-  const mainImage = child.images?.[0]?.url || child.images?.[0] || '';
+  const mainImage = child.images?.[0] || '';
+
+  // isSponsored is stored in child.isFeatured (mapped from child.sponsorship.isSponsored)
+  const isSponsored = child.isFeatured;
 
   return (
-    <div className="card hover:shadow-lg transition-shadow duration-300">
-      <div className="relative">
+    <div className="card bg-white border border-parchment-dim hover-scale flex flex-col h-full shadow-sm hover:shadow-md transition-all duration-300">
+      {/* Profile Image & Badges */}
+      <div className="relative h-56 overflow-hidden">
         <img
           src={
-            mainImage.startsWith('http')
+            !mainImage
+              ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'
+              : mainImage.startsWith('http') || mainImage.startsWith('/')
               ? mainImage
-              : mainImage.startsWith('/uploads')
-              ? mainImage
-              : `/uploads${mainImage}`
+              : `/uploads/${mainImage}`
           }
           alt={child.name}
-          className="w-full h-48 object-cover"
+          className="w-full h-full object-cover"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.src =
               'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400';
           }}
         />
-        {child.isFeatured && (
-          <div className="absolute top-2 right-2">
-            <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-semibold">
-              Featured
-            </span>
-          </div>
-        )}
-        <div className="absolute bottom-2 left-2">
+        {/* Gender Badge */}
+        <div className="absolute top-3 left-3">
           <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold text-white ${
-              child.gender === 'male' ? 'bg-blue-500' : 'bg-pink-500'
+            className={`px-2.5 py-1 rounded-full text-xs font-semibold text-white shadow-sm ${
+              child.gender === 'male' ? 'bg-teal-light' : 'bg-coral'
             }`}
           >
             {child.gender === 'male' ? 'Laki-laki' : 'Perempuan'}
           </span>
         </div>
+        {/* Urgency Badge if not sponsored */}
+        {!isSponsored && (
+          <div className="absolute top-3 right-3">
+            <span className="bg-coral text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-sm animate-pulse">
+              Butuh Sponsor
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="text-xl font-semibold text-gray-900">{child.name}</h3>
-          <span className="text-lg font-medium text-indigo-600">
+      {/* Card Body */}
+      <div className="p-6 flex flex-col flex-grow">
+        {/* Name & Age */}
+        <div className="flex items-baseline justify-between mb-3">
+          <h3 className="text-xl font-bold text-teal font-serif leading-tight">{child.name}</h3>
+          <span className="text-sm font-mono text-ink-soft bg-parchment px-2 py-0.5 rounded">
             {age} tahun
           </span>
         </div>
 
-        <div className="mb-4">
-          <div className="grid grid-cols-1 gap-2 text-sm text-gray-600">
-            <div className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-2 text-indigo-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                />
-              </svg>
-              <span>{child.currentStatus.living}</span>
-            </div>
-            <div className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-2 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-              <span>{child.currentStatus.health}</span>
-            </div>
-            <div className="flex items-center">
-              <svg
-                className="w-4 h-4 mr-2 text-blue-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-              <span>{child.currentStatus.education}</span>
-            </div>
-          </div>
+        {/* Status Pills */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          <span className="px-2 py-0.5 bg-teal/10 text-teal text-xs font-medium rounded">
+            {child.currentStatus.living}
+          </span>
+          <span className="px-2 py-0.5 bg-sage/10 text-sage text-xs font-medium rounded">
+            {child.currentStatus.health}
+          </span>
+          <span className="px-2 py-0.5 bg-amber/10 text-amber text-xs font-medium rounded">
+            Kelas: {child.currentStatus.education}
+          </span>
         </div>
 
-        {child.skills && child.skills.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-900 mb-2">
-              Kemampuan
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {child.skills.slice(0, 3).map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full"
-                >
-                  {skill}
-                </span>
-              ))}
-              {child.skills.length > 3 && (
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                  +{child.skills.length - 3} lagi
-                </span>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Story Snippet */}
+        <p className="text-sm text-ink-soft font-sans line-clamp-3 mb-6 flex-grow leading-relaxed">
+          {child.story}
+        </p>
 
-        <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">Cerita</h4>
-          <p className="text-sm text-gray-600 line-clamp-3">{child.story}</p>
+        {/* Sponsorship Weave Progress Bar */}
+        <div className="mb-6 pt-4 border-t border-parchment-dim">
+          <div className="flex justify-between text-xs font-semibold text-ink-soft mb-1.5">
+            <span>Progress Sponsorship</span>
+            <span className="font-mono text-teal">
+              {isSponsored ? '100% (Disponsori)' : 'Butuh Dukungan'}
+            </span>
+          </div>
+          <div className="weave-bar">
+            <div
+              className="weave-bar-fill"
+              style={{ width: isSponsored ? '100%' : '15%' }}
+            ></div>
+          </div>
+          <p className="text-xs text-ink-soft/75 mt-1.5 leading-relaxed">
+            {isSponsored 
+              ? 'Telah dibantu oleh sponsor untuk pendidikan & biaya hidup.'
+              : 'Sangat memerlukan sponsor bulanan senilai Rp 500.000.'}
+          </p>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-500">
-            Bergabung sejak{' '}
-            {new Date(child.createdAt).toLocaleDateString('id-ID', {
-              year: 'numeric',
-              month: 'long',
-            })}
-          </div>
-          <button 
-            onClick={() => navigate(`/donations?childName=${encodeURIComponent(child.name)}`)}
-            className="btn-primary text-sm px-4 py-2"
+        {/* CTA Actions */}
+        <div className="flex gap-3 mt-auto">
+          <Link
+            to={`/children/${child.id}`}
+            className="flex-1 text-center py-2 px-3 border border-teal text-teal text-sm font-semibold rounded-md hover:bg-teal/5 transition-colors"
           >
-            Sponsori Anak
-          </button>
+            Kisah Lengkap
+          </Link>
+          <Link
+            to={`/donations?childId=${child.id}&childName=${encodeURIComponent(child.name)}&category=sponsorship`}
+            className="flex-1 text-center py-2 px-3 bg-amber hover:bg-amber-dark text-ink text-sm font-semibold rounded-md transition-colors"
+          >
+            Sponsori
+          </Link>
         </div>
       </div>
     </div>
