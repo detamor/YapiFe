@@ -182,10 +182,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (data: RegisterData) => {
     const response = await authService.register(data);
-    const { user: userData, access_token } = response.data;
+    const userData = response.data?.user;
+    const access_token = response.data?.token;
 
     // Store data securely
-    tokenManager.setAuthToken(access_token);
+    if (access_token) {
+      tokenManager.setAuthToken(access_token);
+    }
     userDataManager.setUserData(userData);
     sessionManager.startSession();
 

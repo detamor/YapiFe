@@ -52,9 +52,11 @@ const RegisterPage: React.FC = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password wajib diisi';
-    } else if (!validatePassword(formData.password)) {
-      newErrors.password =
-        'Password minimal 8 karakter dengan huruf besar, kecil, dan angka';
+    } else {
+      const passwordResult = validatePassword(formData.password);
+      if (!passwordResult.isValid) {
+        newErrors.password = passwordResult.message;
+      }
     }
 
     if (!formData.password_confirmation) {
@@ -80,8 +82,10 @@ const RegisterPage: React.FC = () => {
       toast.success('Registrasi berhasil! Selamat datang di YAPI Medan.');
       navigate('/');
     } catch (error: any) {
-      const message =
-        error.response?.data?.message || 'Terjadi kesalahan saat registrasi';
+      let message = error.response?.data?.message || 'Terjadi kesalahan saat registrasi';
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
+        message = `${message}: ${error.response.data.errors[0].message}`;
+      }
       toast.error(message);
     } finally {
       setIsLoading(false);

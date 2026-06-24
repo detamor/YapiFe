@@ -24,7 +24,7 @@ interface Child {
     health: string;
     education: string;
   };
-  skills?: string[];
+  skills?: any[];
   achievements?: Array<{
     title: string;
     date: string;
@@ -282,12 +282,12 @@ const DonaturDashboardPage: React.FC = () => {
                           Keterampilan:
                         </p>
                         <div className="flex flex-wrap gap-1">
-                          {child.skills.map((skill, index) => (
+                          {child.skills.map((skill: any, index) => (
                             <span
                               key={index}
                               className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
                             >
-                              {skill}
+                              {typeof skill === 'object' && skill !== null ? skill.name : skill}
                             </span>
                           ))}
                         </div>

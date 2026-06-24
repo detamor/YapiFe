@@ -16,8 +16,12 @@ export interface RegisterData {
 
 export interface AuthResponse {
   user: User;
-  access_token: string;
-  token_type: string;
+  token: string;
+  access_token?: string;
+  token_type?: string;
+  accessToken?: string;
+  authToken?: string;
+  userData?: User;
 }
 
 export const authService = {
