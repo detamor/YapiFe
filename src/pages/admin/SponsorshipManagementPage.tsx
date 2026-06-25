@@ -66,9 +66,17 @@ const SponsorshipManagementPage: React.FC = () => {
       sponsorEmail: child.sponsorship?.sponsor?.email || '',
       sponsorshipType: child.sponsorship?.sponsorshipType || 'penuh',
       monthlyAmount: child.sponsorship?.monthlyAmount || 500000,
-      startDate: child.sponsorship?.startDate 
-        ? new Date(child.sponsorship.startDate).toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0]
+      startDate: (() => {
+        if (child.sponsorship?.startDate) {
+          try {
+            const d = new Date(child.sponsorship.startDate);
+            if (!isNaN(d.getTime())) {
+              return d.toISOString().split('T')[0];
+            }
+          } catch (e) {}
+        }
+        return new Date().toISOString().split('T')[0];
+      })()
     });
     setIsModalOpen(true);
   };
@@ -179,7 +187,7 @@ const SponsorshipManagementPage: React.FC = () => {
                     const mainImage = child.images?.[0]?.url || child.profileImage || '';
                     
                     return (
-                      <tr key={child._id} className="hover:bg-parchment/10 transition-colors">
+                      <tr key={child._id || child.id} className="hover:bg-parchment/10 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0 rounded-full overflow-hidden bg-gray-100 border border-parchment-dim">
@@ -237,11 +245,19 @@ const SponsorshipManagementPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap font-mono text-xs">
                           {isSponsored && child.sponsorship.startDate ? (
-                            new Date(child.sponsorship.startDate).toLocaleDateString('id-ID', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })
+                            (() => {
+                              try {
+                                const parsedDate = new Date(child.sponsorship.startDate);
+                                if (!isNaN(parsedDate.getTime())) {
+                                  return parsedDate.toLocaleDateString('id-ID', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                  });
+                                }
+                              } catch (e) {}
+                              return child.sponsorship.startDate;
+                            })()
                           ) : (
                             <span className="text-ink-soft italic text-xs">-</span>
                           )}

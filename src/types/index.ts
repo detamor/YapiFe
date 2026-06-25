@@ -4,6 +4,7 @@ export interface User {
   email: string;
   role: 'admin' | 'donatur' | 'volunteer';
   phone?: string;
+  address?: string;
   profileImage?: string;
   isActive: boolean;
   isEmailVerified: boolean;

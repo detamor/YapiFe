@@ -46,7 +46,7 @@ const DashboardStats: React.FC = () => {
     staleTime: 5 * 60 * 1000,
     retry: 1,
     retryDelay: 1000,
-    enabled: false,
+    enabled: true,
     onError: (error: any) => {
       console.log('🚨 Dashboard stats error:', {
         message: error.message,
@@ -64,10 +64,20 @@ const DashboardStats: React.FC = () => {
 
   // Mock data for when API is not available
   const mockData = {
-    children: { total: 0, active: 0, inactive: 0 },
-    donations: { totalAmount: 0, totalCount: 0, pending: 0 },
-    activities: { ongoing: 0, completed: 0, upcoming: 0 },
-    testimonials: { approved: 0, pending: 0, total: 0 },
+    overview: {
+      totalUsers: 0,
+      totalChildren: 0,
+      totalDonations: 0,
+      totalActivities: 0,
+      totalTestimonials: 0,
+    },
+    statistics: {
+      donations: {
+        totalAmount: 0,
+        avgAmount: 0,
+        count: 0,
+      },
+    },
   };
 
   if (isLoading) {
@@ -92,7 +102,7 @@ const DashboardStats: React.FC = () => {
   }
 
   // Use mock data if API fails
-  const data = error ? mockData : dashboardData?.data || mockData;
+  const data = error ? mockData : (dashboardData?.data as any) || mockData;
 
   // Show demo mode message
   const isDemoMode = error || !dashboardData;
@@ -100,7 +110,7 @@ const DashboardStats: React.FC = () => {
   const stats = [
     {
       name: 'Total Anak',
-      value: data.children.total,
+      value: data.overview?.totalChildren || 0,
       change: '+12%',
       changeType: 'increase',
       icon: UserGroupIcon,
@@ -109,7 +119,7 @@ const DashboardStats: React.FC = () => {
     },
     {
       name: 'Total Donasi',
-      value: `Rp ${data.donations.totalAmount.toLocaleString('id-ID')}`,
+      value: `Rp ${(data.statistics?.donations?.totalAmount || 0).toLocaleString('id-ID')}`,
       change: '+8%',
       changeType: 'increase',
       icon: CurrencyDollarIcon,
@@ -118,7 +128,7 @@ const DashboardStats: React.FC = () => {
     },
     {
       name: 'Kegiatan Aktif',
-      value: data.activities.ongoing,
+      value: data.overview?.totalActivities || 0,
       change: '+5%',
       changeType: 'increase',
       icon: CalendarIcon,
@@ -127,7 +137,7 @@ const DashboardStats: React.FC = () => {
     },
     {
       name: 'Testimoni',
-      value: data.testimonials.approved,
+      value: data.overview?.totalTestimonials || 0,
       change: '+15%',
       changeType: 'increase',
       icon: ChatBubbleLeftRightIcon,

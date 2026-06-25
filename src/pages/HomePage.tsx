@@ -9,6 +9,8 @@ import {
 import TestimonialForm from '../components/testimonials/TestimonialForm';
 import IframeMap from '../components/maps/IframeMap';
 import { childrenService } from '../services/children';
+import { reportsService, PublicStats } from '../services/reports';
+import api from '../services/api';
 import { Child } from '../types';
 import { calculateAge } from '../utils/dateUtils';
 
@@ -31,13 +33,93 @@ const HomePage: React.FC = () => {
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [featuredChildren, setFeaturedChildren] = useState<Child[]>([]);
   const [loadingChildren, setLoadingChildren] = useState(true);
+  const [stats, setStats] = useState<PublicStats>({
+    totalChildren: 0,
+    totalDonors: 0,
+    totalActivities: 0,
+    yearsOfService: new Date().getFullYear() - 2005,
+  });
+  const [galleryPhotos, setGalleryPhotos] = useState<any[]>(activitiesPhotos);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await reportsService.getPublicStats();
+        if (res.success && res.data) {
+          setStats(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch public stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const res = await api.get('/activities', {
+          params: { limit: 20, status: 'completed' }
+        });
+        
+        let activitiesList = [];
+        if (res.data?.data && Array.isArray(res.data.data)) {
+          activitiesList = res.data.data;
+        } else if (res.data?.data && typeof res.data.data === 'object') {
+          activitiesList = res.data.data.activities || res.data.data.items || [];
+        } else if (res.data?.items && Array.isArray(res.data.items)) {
+          activitiesList = res.data.items;
+        } else if (Array.isArray(res.data)) {
+          activitiesList = res.data;
+        }
+        
+        const dynamicPhotos: any[] = [];
+        activitiesList.forEach((act: any) => {
+          if (act.media?.images && act.media.images.length > 0) {
+            act.media.images.forEach((img: any) => {
+              if (img.url) {
+                dynamicPhotos.push({
+                  src: img.url,
+                  title: act.title,
+                  description: img.caption || act.description,
+                });
+              }
+            });
+          }
+        });
+
+        if (dynamicPhotos.length > 0) {
+          const merged = [...dynamicPhotos];
+          if (merged.length < 8) {
+            activitiesPhotos.forEach(p => {
+              if (merged.length < 8 && !merged.some(m => m.src === p.src)) {
+                merged.push(p);
+              }
+            });
+          }
+          setGalleryPhotos(merged.slice(0, 8));
+        }
+      } catch (err) {
+        console.error('Failed to fetch gallery documentation:', err);
+      }
+    };
+    fetchGallery();
+  }, []);
 
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
         // Ambil data anak, filter secara manual untuk mendapatkan yang unggulan/butuh sponsor
         const res = await childrenService.getAll({ page: 1, limit: 10 });
-        const childrenArray = res.data?.items || [];
+        
+        let childrenArray = [];
+        if (res?.data && Array.isArray(res.data)) {
+          childrenArray = res.data;
+        } else if (res?.data && typeof res.data === 'object') {
+          childrenArray = (res.data as any).children || (res.data as any).items || [];
+        } else if (Array.isArray(res)) {
+          childrenArray = res;
+        }
         
         // Ambil maksimal 3 anak
         const filtered = childrenArray
@@ -78,7 +160,7 @@ const HomePage: React.FC = () => {
     e?.stopPropagation();
     if (activePhotoIndex !== null) {
       setActivePhotoIndex((prevIndex) => 
-        prevIndex === 0 ? activitiesPhotos.length - 1 : prevIndex! - 1
+        prevIndex === 0 ? galleryPhotos.length - 1 : prevIndex! - 1
       );
     }
   };
@@ -87,7 +169,7 @@ const HomePage: React.FC = () => {
     e?.stopPropagation();
     if (activePhotoIndex !== null) {
       setActivePhotoIndex((prevIndex) => 
-        prevIndex === activitiesPhotos.length - 1 ? 0 : prevIndex! + 1
+        prevIndex === galleryPhotos.length - 1 ? 0 : prevIndex! + 1
       );
     }
   };
@@ -132,10 +214,12 @@ const HomePage: React.FC = () => {
             <span className="text-amber uppercase tracking-wider font-semibold text-sm font-sans mb-3 block">
               Yayasan Advent Peduli Indonesia
             </span>
-            <h1 className="text-4xl md:text-6xl font-serif font-bold mb-6 text-parchment leading-tight">
-              Menyulam Asa,<br />
-              <span className="text-amber">Menuntun Masa Depan</span>
+            <h1 className="text-2xl md:text-4xl font-sans font-semibold mb-4 text-parchment leading-relaxed">
+              "Perhatikanlah orang yang tulus dan lihatlah kepada orang yang jujur, sebab pada orang yang suka damai akan ada masa depan."
             </h1>
+            <p className="text-amber text-lg md:text-xl font-semibold mb-6 font-sans">
+              — Mazmur 37:37
+            </p>
             <p className="text-lg md:text-xl mb-8 max-w-2xl text-parchment/90 leading-relaxed font-sans">
               YAPI Medan berdedikasi mengasuh dan memberikan akses pendidikan, kesehatan, serta lingkungan kekeluargaan yang layak bagi anak-anak yatim, piatu, dan kurang mampu di Sumatera Utara.
             </p>
@@ -166,25 +250,25 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div className="p-4 bg-white/40 rounded-lg border border-white/50 backdrop-blur-sm shadow-sm">
               <div className="text-3xl md:text-5xl font-bold font-mono text-teal mb-2">
-                120+
+                {stats.totalChildren}
               </div>
               <div className="text-ink-soft text-sm font-semibold tracking-wide">Anak Terbantu</div>
             </div>
             <div className="p-4 bg-white/40 rounded-lg border border-white/50 backdrop-blur-sm shadow-sm">
               <div className="text-3xl md:text-5xl font-bold font-mono text-teal mb-2">
-                850+
+                {stats.totalDonors}
               </div>
               <div className="text-ink-soft text-sm font-semibold tracking-wide">Donatur Aktif</div>
             </div>
             <div className="p-4 bg-white/40 rounded-lg border border-white/50 backdrop-blur-sm shadow-sm">
               <div className="text-3xl md:text-5xl font-bold font-mono text-teal mb-2">
-                40+
+                {stats.totalActivities}
               </div>
               <div className="text-ink-soft text-sm font-semibold tracking-wide">Kegiatan Sosial</div>
             </div>
             <div className="p-4 bg-white/40 rounded-lg border border-white/50 backdrop-blur-sm shadow-sm">
               <div className="text-3xl md:text-5xl font-bold font-mono text-teal mb-2">
-                5+
+                {stats.yearsOfService}
               </div>
               <div className="text-ink-soft text-sm font-semibold tracking-wide">Tahun Pengabdian</div>
             </div>
@@ -405,7 +489,7 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {activitiesPhotos.slice(0, 8).map((photo, index) => (
+            {galleryPhotos.slice(0, 8).map((photo, index) => (
               <div 
                 key={index} 
                 className="group relative overflow-hidden rounded-lg shadow-sm border border-parchment-dim cursor-pointer hover-scale"
@@ -485,8 +569,8 @@ const HomePage: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <img 
-                src={activitiesPhotos[activePhotoIndex].src} 
-                alt={activitiesPhotos[activePhotoIndex].title} 
+                src={galleryPhotos[activePhotoIndex].src} 
+                alt={galleryPhotos[activePhotoIndex].title} 
                 className="max-w-full max-h-[70vh] object-contain rounded-md shadow-2xl border border-white/10"
               />
             </div>
@@ -495,10 +579,10 @@ const HomePage: React.FC = () => {
               className="mt-6 text-center text-parchment max-w-2xl px-4"
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-2xl font-serif font-bold text-amber">{activitiesPhotos[activePhotoIndex].title}</h3>
-              <p className="text-parchment/80 mt-2 text-sm font-sans">{activitiesPhotos[activePhotoIndex].description}</p>
+              <h3 className="text-2xl font-serif font-bold text-amber">{galleryPhotos[activePhotoIndex].title}</h3>
+              <p className="text-parchment/80 mt-2 text-sm font-sans">{galleryPhotos[activePhotoIndex].description}</p>
               <span className="inline-block mt-3 px-3 py-1 bg-white/10 text-xs rounded-full font-mono text-parchment/70">
-                {activePhotoIndex + 1} / {activitiesPhotos.length}
+                {activePhotoIndex + 1} / {galleryPhotos.length}
               </span>
             </div>
 

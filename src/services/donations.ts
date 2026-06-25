@@ -42,6 +42,15 @@ export const donationsService = {
     return response.data;
   },
 
+  async updateStatus(
+    id: string,
+    status: string,
+    adminNotes?: string
+  ): Promise<ApiResponse<Donation>> {
+    const response = await api.put(`/donations/${id}/status`, { status, adminNotes });
+    return response.data;
+  },
+
   async delete(id: string): Promise<ApiResponse<void>> {
     const response = await api.delete(`/donations/${id}`);
     return response.data;

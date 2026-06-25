@@ -12,6 +12,7 @@ import {
 import { usersService } from '../../services/users';
 
 interface User {
+  _id?: string;
   id: string;
   name: string;
   email: string;
@@ -93,7 +94,7 @@ const UserManagementPage: React.FC = () => {
     }
 
     upgradeRoleMutation.mutate({
-      userId: selectedUser.id,
+      userId: selectedUser._id || selectedUser.id,
       role: newRole,
       reason,
     });
@@ -275,7 +276,7 @@ const UserManagementPage: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {usersData?.data?.users?.map((user: User) => (
-                  <tr key={user.id}>
+                  <tr key={user._id || user.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">

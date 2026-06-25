@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import { SessionManager } from '../utils/secureStorage';
+import { useAuth } from '../hooks/useAuth';
 
 interface SecurityContextType {
   isSessionActive: boolean;
@@ -42,24 +43,40 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({
   const [showSecurityWarning, setShowSecurityWarning] = useState(false);
 
   const sessionManager = SessionManager.getInstance();
+  const { logout, isAuthenticated } = useAuth();
 
   // Check session status every minute
   useEffect(() => {
-    const checkSession = () => {
+    const checkSession = async () => {
+      if (!isAuthenticated) {
+        setIsSessionActive(false);
+        setSessionAge(0);
+        setShowSecurityWarning(false);
+        return;
+      }
+
       const isActive = sessionManager.isSessionActive();
       const sessionInfo = sessionManager.getSessionInfo();
 
       setIsSessionActive(isActive);
       setSessionTimeout(sessionManager.getSessionTimeout());
-      setSessionAge(sessionInfo?.duration || 0);
 
-      // Show warning when session is about to expire (5 minutes before)
+      if (!isActive) {
+        console.log('Session expired, logging out...');
+        await logout();
+        return;
+      }
+
+      const timeSinceLastActivity = sessionInfo
+        ? Date.now() - sessionInfo.lastActivity
+        : 0;
+      setSessionAge(timeSinceLastActivity);
+
+      // Show warning when session is about to expire (5 minutes before inactivity timeout)
       const warningThreshold = 5 * 60 * 1000; // 5 minutes
-      if (
-        sessionInfo &&
-        sessionInfo.duration >
-          sessionManager.getSessionTimeout() - warningThreshold
-      ) {
+      const remainingTime = sessionManager.getSessionTimeout() - timeSinceLastActivity;
+
+      if (remainingTime <= warningThreshold) {
         setShowSecurityWarning(true);
       } else {
         setShowSecurityWarning(false);
@@ -97,20 +114,18 @@ export const SecurityProvider: React.FC<SecurityProviderProps> = ({
         document.removeEventListener(event, handleUserActivity, true);
       });
     };
-  }, []);
+  }, [isAuthenticated, logout]);
 
   const refreshSession = () => {
     sessionManager.updateSessionActivity();
-    const sessionInfo = sessionManager.getSessionInfo();
-    setSessionAge(sessionInfo?.duration || 0);
+    setSessionAge(0);
     setShowSecurityWarning(false);
   };
 
   const endSession = () => {
-    sessionManager.endSession();
-    setIsSessionActive(false);
-    setSessionAge(0);
-    setShowSecurityWarning(false);
+    logout().catch((error) => {
+      console.error('Manual logout from security warning failed:', error);
+    });
   };
 
   const value: SecurityContextType = {

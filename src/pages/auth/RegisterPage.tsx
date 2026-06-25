@@ -8,6 +8,7 @@ import {
 } from '../../utils/validation';
 import toast from 'react-hot-toast';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import SocialLogin from '../../components/auth/SocialLogin';
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -304,6 +305,8 @@ const RegisterPage: React.FC = () => {
               </button>
             </div>
           </form>
+
+          <SocialLogin />
 
           <div className="mt-6">
             <div className="relative">

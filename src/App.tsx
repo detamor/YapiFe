@@ -19,14 +19,19 @@ import ChildrenManagementPage from './pages/admin/ChildrenManagementPage';
 import ActivitiesManagementPage from './pages/admin/ActivitiesManagementPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import SponsorshipManagementPage from './pages/admin/SponsorshipManagementPage'; // 🤝 NEW: Admin sponsorship dashboard
+import DonationsManagementPage from './pages/admin/DonationsManagementPage';
+import TestimonialsManagementPage from './pages/admin/TestimonialsManagementPage';
+import ReportsPage from './pages/admin/ReportsPage';
+import SettingsPage from './pages/admin/SettingsPage';
 import DonaturDashboardPage from './pages/donatur/DonaturDashboardPage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProfilePage from '@/pages/ProfilePage'; // Profile page view
 
 function App() {
   return (
     <ErrorBoundary>
-      <SecurityProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <SecurityProvider>
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
@@ -41,6 +46,16 @@ function App() {
               <Route path="contact" element={<ContactPage />} />
               <Route path="activities" element={<ActivitiesPage />} />
               <Route path="testimonials" element={<TestimonialsPage />} />
+              <Route
+                path="profile"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={['donatur', 'volunteer', 'admin']}
+                  >
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="donatur">
                 <Route
                   index
@@ -94,11 +109,43 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="donations"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <DonationsManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="testimonials"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <TestimonialsManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="reports"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="settings"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
             </Route>
           </Routes>
-        </AuthProvider>
-      </SecurityProvider>
+        </SecurityProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

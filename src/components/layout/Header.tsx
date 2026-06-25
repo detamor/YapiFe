@@ -99,9 +99,15 @@ const Header: React.FC = () => {
                     </svg>
                   </button>
                   <div className="absolute right-0 mt-2 w-48 bg-teal border border-teal-light rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <Link
+                      to="/profile"
+                      className="block w-full text-left px-4 py-2 text-sm text-parchment/80 hover:text-amber hover:bg-teal-light transition-colors"
+                    >
+                      Profil Saya
+                    </Link>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-parchment/80 hover:text-amber hover:bg-teal-light transition-colors"
+                      className="block w-full text-left px-4 py-2 text-sm text-parchment/80 hover:text-amber hover:bg-teal-light transition-colors border-t border-teal-light/20"
                     >
                       Keluar
                     </button>
@@ -174,6 +180,13 @@ const Header: React.FC = () => {
                   <div className="px-3 py-2 text-sm font-medium text-amber">
                     {user?.name}
                   </div>
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 rounded-md text-base font-medium text-parchment/80 hover:text-amber hover:bg-teal-light"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Profil Saya
+                  </Link>
                   <button
                     onClick={() => {
                       handleLogout();

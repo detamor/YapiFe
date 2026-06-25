@@ -39,10 +39,16 @@ const ChildrenManagementPage: React.FC = () => {
     name: '',
     age: '',
     gender: 'male',
-    education_level: '',
     skills: '',
     status: 'active',
     profileImage: null as File | null,
+    story: '',
+    familyStatus: 'yatim-piatu',
+    livingStatus: 'di-yayasan',
+    healthStatus: 'sehat',
+    educationLevel: 'sd',
+    schoolName: 'SD YAPI Medan',
+    grade: '',
   });
 
   const queryClient = useQueryClient();
@@ -118,10 +124,16 @@ const ChildrenManagementPage: React.FC = () => {
       name: '',
       age: '',
       gender: 'male',
-      education_level: '',
       skills: '',
       status: 'active',
       profileImage: null,
+      story: '',
+      familyStatus: 'yatim-piatu',
+      livingStatus: 'di-yayasan',
+      healthStatus: 'sehat',
+      educationLevel: 'sd',
+      schoolName: 'SD YAPI Medan',
+      grade: '',
     });
     setEditingChild(null);
   };
@@ -138,18 +150,17 @@ const ChildrenManagementPage: React.FC = () => {
       name: formData.name,
       dateOfBirth: dateOfBirth,
       gender: formData.gender === 'male' ? 'laki-laki' : 'perempuan',
-      story: `Anak bernama ${formData.name} dengan usia ${formData.age} tahun.`,
       background: {
-        story: `Anak bernama ${formData.name} dengan usia ${formData.age} tahun.`,
-        familyStatus: 'yatim-piatu',
+        story: formData.story || `Anak bernama ${formData.name} dengan usia ${formData.age} tahun.`,
+        familyStatus: formData.familyStatus,
         healthHistory: 'Sehat',
       },
       currentStatus: {
-        livingStatus: 'di-yayasan',
-        healthStatus: 'sehat',
-        educationLevel: 'sd',
-        schoolName: 'SD YAPI Medan',
-        grade: `Kelas ${formData.education_level}`,
+        livingStatus: formData.livingStatus,
+        healthStatus: formData.healthStatus,
+        educationLevel: formData.educationLevel,
+        schoolName: formData.schoolName,
+        grade: formData.grade,
       },
       skills: formData.skills
         .split(',')
@@ -208,10 +219,16 @@ const ChildrenManagementPage: React.FC = () => {
       name: child.name,
       age: age.toString(),
       gender: child.gender === 'laki-laki' ? 'male' : 'female',
-      education_level: child.currentStatus.grade.replace('Kelas ', ''),
-      skills: child.skills.map((skill) => skill.name).join(', '),
+      skills: child.skills ? child.skills.map((skill) => skill.name).join(', ') : '',
       status: child.isActive ? 'active' : 'inactive',
       profileImage: null,
+      story: child.background?.story || '',
+      familyStatus: child.background?.familyStatus || 'yatim-piatu',
+      livingStatus: child.currentStatus?.livingStatus || 'di-yayasan',
+      healthStatus: child.currentStatus?.healthStatus || 'sehat',
+      educationLevel: child.currentStatus?.educationLevel || 'sd',
+      schoolName: child.currentStatus?.schoolName || 'SD YAPI Medan',
+      grade: child.currentStatus?.grade || '',
     });
     setIsModalOpen(true);
   };
@@ -232,7 +249,7 @@ const ChildrenManagementPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -252,51 +269,10 @@ const ChildrenManagementPage: React.FC = () => {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+            className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors shadow-md"
           >
             + Tambah Anak Baru
           </button>
-        </div>
-
-        {/* Debug Info */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <h3 className="text-red-800 font-medium">Debug Info - Error:</h3>
-            <p className="text-red-700 text-sm">{error.message}</p>
-          </div>
-        )}
-
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h3 className="text-blue-800 font-medium">Debug Info:</h3>
-          <p className="text-blue-700 text-sm">
-            Loading: {isLoading ? 'Yes' : 'No'}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Has children data: {children ? 'Yes' : 'No'}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Children.data exists: {children?.data ? 'Yes' : 'No'}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Data type: {typeof children?.data}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Is Array: {Array.isArray(children?.data) ? 'Yes' : 'No'}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Length: {children?.data?.length || 0}
-          </p>
-          <p className="text-blue-700 text-sm">
-            Response keys:{' '}
-            {children ? Object.keys(children).join(', ') : 'None'}
-          </p>
-          {children?.data &&
-            typeof children.data === 'object' &&
-            !Array.isArray(children.data) && (
-              <p className="text-blue-700 text-sm">
-                Data keys: {Object.keys(children.data).join(', ')}
-              </p>
-            )}
         </div>
 
         {/* Children Grid */}
@@ -396,7 +372,7 @@ const ChildrenManagementPage: React.FC = () => {
                       </div>
 
                       <p className="text-sm text-gray-600 mb-3">
-                        Pendidikan: {child.currentStatus.grade}
+                        Pendidikan: {child.currentStatus?.grade || 'Belum diisi'}
                       </p>
 
                       {child.skills && child.skills.length > 0 && (
@@ -420,7 +396,7 @@ const ChildrenManagementPage: React.FC = () => {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleEdit(child)}
-                          className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-600 transition-colors"
+                          className="flex-1 bg-teal-600 text-white px-3 py-2 rounded-md text-sm hover:bg-teal-700 transition-colors"
                         >
                           Edit
                         </button>
@@ -464,7 +440,7 @@ const ChildrenManagementPage: React.FC = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     required
                   />
                 </div>
@@ -480,10 +456,10 @@ const ChildrenManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, age: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       required
                       min="1"
-                      max="18"
+                      max="25"
                     />
                   </div>
                   <div>
@@ -495,7 +471,7 @@ const ChildrenManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, gender: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     >
                       <option value="male">Laki-laki</option>
                       <option value="female">Perempuan</option>
@@ -503,44 +479,147 @@ const ChildrenManagementPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tingkat Pendidikan
-                  </label>
-                  <select
-                    value={formData.education_level}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        education_level: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    required
-                  >
-                    <option value="">Pilih tingkat pendidikan</option>
-                    <option value="1">Kelas 1</option>
-                    <option value="2">Kelas 2</option>
-                    <option value="3">Kelas 3</option>
-                    <option value="4">Kelas 4</option>
-                    <option value="5">Kelas 5</option>
-                    <option value="6">Kelas 6</option>
-                  </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status Keluarga
+                    </label>
+                    <select
+                      value={formData.familyStatus}
+                      onChange={(e) =>
+                        setFormData({ ...formData, familyStatus: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    >
+                      <option value="yatim">Yatim</option>
+                      <option value="piatu">Piatu</option>
+                      <option value="yatim-piatu">Yatim Piatu</option>
+                      <option value="keluarga-tidak-mampu">Keluarga Tidak Mampu</option>
+                      <option value="terlantar">Terlantar</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status Tinggal
+                    </label>
+                    <select
+                      value={formData.livingStatus}
+                      onChange={(e) =>
+                        setFormData({ ...formData, livingStatus: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    >
+                      <option value="di-yayasan">Di Yayasan</option>
+                      <option value="keluarga-asuh">Keluarga Asuh</option>
+                      <option value="mandiri">Mandiri</option>
+                      <option value="lulus">Lulus</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Keterampilan (pisahkan dengan koma)
+                    Cerita / Kisah Latar Belakang
                   </label>
-                  <input
-                    type="text"
-                    value={formData.skills}
+                  <textarea
+                    value={formData.story}
                     onChange={(e) =>
-                      setFormData({ ...formData, skills: e.target.value })
+                      setFormData({ ...formData, story: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Contoh: Menggambar, Menyanyi, Olahraga"
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    placeholder="Ceritakan kisah hidup dan latar belakang anak..."
+                    required
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Pendidikan
+                    </label>
+                    <select
+                      value={formData.educationLevel}
+                      onChange={(e) =>
+                        setFormData({ ...formData, educationLevel: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    >
+                      <option value="belum-sekolah">Belum Sekolah</option>
+                      <option value="tk">TK</option>
+                      <option value="sd">SD</option>
+                      <option value="smp">SMP</option>
+                      <option value="sma">SMA</option>
+                      <option value="kuliah">Kuliah</option>
+                      <option value="lulus">Lulus</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Kelas / Tingkat
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.grade}
+                      onChange={(e) =>
+                        setFormData({ ...formData, grade: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      placeholder="Contoh: Kelas 4, Semester 2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nama Sekolah
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.schoolName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, schoolName: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      placeholder="Nama Sekolah"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status Kesehatan
+                    </label>
+                    <select
+                      value={formData.healthStatus}
+                      onChange={(e) =>
+                        setFormData({ ...formData, healthStatus: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    >
+                      <option value="sehat">Sehat</option>
+                      <option value="sakit-ringan">Sakit Ringan</option>
+                      <option value="sakit-berat">Sakit Berat</option>
+                      <option value="disabilitas">Disabilitas</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Keterampilan
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.skills}
+                      onChange={(e) =>
+                        setFormData({ ...formData, skills: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      placeholder="Pisahkan dengan koma"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -551,44 +630,46 @@ const ChildrenManagementPage: React.FC = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Format: JPG, PNG, GIF. Maksimal 2MB
+                    Format: JPG, PNG, WEBP. Maksimal 2MB.
                   </p>
                   {formData.profileImage && (
-                    <div className="mt-2">
-                      <p className="text-xs text-green-600 mb-1">Preview:</p>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <span className="text-xs text-teal-600 font-semibold">Preview:</span>
                       <img
                         src={URL.createObjectURL(formData.profileImage)}
                         alt="Preview"
-                        className="w-20 h-20 object-cover rounded-md border"
+                        className="w-16 h-16 object-cover rounded border border-gray-200"
                       />
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) =>
-                      setFormData({ ...formData, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  >
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Tidak Aktif</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status Anak
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) =>
+                        setFormData({ ...formData, status: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    >
+                      <option value="active">Aktif</option>
+                      <option value="inactive">Tidak Aktif</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
                     disabled={mutation.isPending}
-                    className="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                    className="flex-1 bg-teal-600 text-white py-2 px-4 rounded-md hover:bg-teal-700 transition-colors disabled:opacity-50 font-semibold shadow-sm"
                   >
                     {mutation.isPending
                       ? 'Menyimpan...'
@@ -598,8 +679,11 @@ const ChildrenManagementPage: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      resetForm();
+                    }}
+                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
                   >
                     Batal
                   </button>

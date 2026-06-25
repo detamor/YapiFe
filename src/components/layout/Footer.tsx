@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
               <span className="ml-3 text-xl font-serif font-bold text-parchment">YAPI Medan</span>
             </div>
             <p className="text-parchment/80 mb-4 max-w-md leading-relaxed text-sm">
-              YAPI Medan adalah singkatan dari Yayasan Advent Peduli Indonesia
+              YAPI Medan adalah Yayasan Advent Peduli Indonesia
               cabang Medan. Yayasan ini merupakan lembaga sosial yang bergerak
               di bidang kemanusiaan, khususnya dalam menangani anak-anak yatim
               dan piatu. YAPI Medan juga merupakan bagian dari Yayasan Advent
@@ -26,7 +26,9 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/search/top?q=YAPI%20yayasan%20advent%20peduli%20indonesia"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-parchment/60 hover:text-amber transition-colors duration-200"
                 aria-label="Facebook"
               >
@@ -39,7 +41,9 @@ const Footer: React.FC = () => {
                 </svg>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/yayasanadventpeduliindonesia/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-parchment/60 hover:text-amber transition-colors duration-200"
                 aria-label="Instagram"
               >

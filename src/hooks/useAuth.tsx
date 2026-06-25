@@ -19,9 +19,12 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (data: LoginData) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
+  loginWithFacebook: (accessToken: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
+  updateProfile: (data: { name: string; phone?: string; address?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,8 +76,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (token && userData && tokenManager.isTokenValid(token)) {
         try {
           const response = await authService.getProfile();
-          setUser(response.data);
-          userDataManager.setUserData(response.data);
+          setUser(response.data.user);
+          userDataManager.setUserData(response.data.user);
           sessionManager.startSession();
         } catch (error) {
           console.log(
@@ -209,13 +212,74 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateProfile = async (data: { name: string; phone?: string; address?: string }) => {
+    try {
+      const response = await authService.updateProfile(data);
+      const updatedUser = response.data.user;
+      setUser(updatedUser);
+      userDataManager.setUserData(updatedUser);
+    } catch (error) {
+      console.error('Failed to update profile in context:', error);
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      const response = await authService.googleLogin(idToken);
+      const userData = response.data?.user;
+      const access_token = response.data?.token;
+
+      if (!userData) {
+        throw new Error('Data user tidak valid dari server');
+      }
+
+      if (access_token) {
+        tokenManager.setAuthToken(access_token);
+      }
+      userDataManager.setUserData(userData);
+      sessionManager.startSession();
+
+      setUser(userData);
+    } catch (error) {
+      console.error('Google AuthContext login error:', error);
+      throw error;
+    }
+  };
+
+  const loginWithFacebook = async (accessToken: string) => {
+    try {
+      const response = await authService.facebookLogin(accessToken);
+      const userData = response.data?.user;
+      const access_token = response.data?.token;
+
+      if (!userData) {
+        throw new Error('Data user tidak valid dari server');
+      }
+
+      if (access_token) {
+        tokenManager.setAuthToken(access_token);
+      }
+      userDataManager.setUserData(userData);
+      sessionManager.startSession();
+
+      setUser(userData);
+    } catch (error) {
+      console.error('Facebook AuthContext login error:', error);
+      throw error;
+    }
+  };
+
   const value: AuthContextType = {
     user,
     isLoading,
     login,
+    loginWithGoogle,
+    loginWithFacebook,
     register,
     logout,
     isAuthenticated: !!user,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

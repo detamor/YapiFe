@@ -4,12 +4,13 @@ import { api } from '../../services/api';
 import toast from 'react-hot-toast';
 
 interface Activity {
-  id: string;
+  _id: string;
+  id?: string;
   title: string;
   description: string;
-  category: string;
-  type: 'event' | 'program' | 'workshop' | 'competition';
-  status: 'draft' | 'published' | 'ongoing' | 'completed' | 'cancelled';
+  category: 'pendidikan' | 'kesehatan' | 'olahraga' | 'seni-budaya' | 'keterampilan' | 'sosial' | 'rekreasi' | 'keagamaan' | 'lingkungan' | 'lainnya';
+  type: 'rutin' | 'khusus' | 'event' | 'workshop' | 'kompetisi' | 'kunjungan';
+  status: 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'postponed';
   schedule: {
     startDate: string;
     endDate: string;
@@ -22,6 +23,12 @@ interface Activity {
   };
   isPublic: boolean;
   isFeatured: boolean;
+  media?: {
+    images: Array<{
+      url: string;
+      caption: string;
+    }>;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -32,9 +39,9 @@ const ActivitiesManagementPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
-    type: 'event' as const,
-    status: 'draft' as const,
+    category: 'pendidikan' as 'pendidikan' | 'kesehatan' | 'olahraga' | 'seni-budaya' | 'keterampilan' | 'sosial' | 'rekreasi' | 'keagamaan' | 'lingkungan' | 'lainnya',
+    type: 'rutin' as 'rutin' | 'khusus' | 'event' | 'workshop' | 'kompetisi' | 'kunjungan',
+    status: 'planned' as 'planned' | 'ongoing' | 'completed' | 'cancelled' | 'postponed',
     startDate: '',
     endDate: '',
     startTime: '',
@@ -43,6 +50,9 @@ const ActivitiesManagementPage: React.FC = () => {
     locationAddress: '',
     isPublic: true,
     isFeatured: false,
+    imageUrl: '',
+    imageCaption: '',
+    imageFile: null as File | null,
   });
 
   const queryClient = useQueryClient();
@@ -62,7 +72,7 @@ const ActivitiesManagementPage: React.FC = () => {
   const mutation = useMutation({
     mutationFn: async (data: any) => {
       if (editingActivity) {
-        return api.put(`/activities/${editingActivity.id}`, data);
+        return api.put(`/activities/${editingActivity._id || editingActivity.id}`, data);
       } else {
         return api.post('/activities', data);
       }
@@ -100,9 +110,9 @@ const ActivitiesManagementPage: React.FC = () => {
     setFormData({
       title: '',
       description: '',
-      category: '',
-      type: 'event',
-      status: 'draft',
+      category: 'pendidikan',
+      type: 'rutin',
+      status: 'planned',
       startDate: '',
       endDate: '',
       startTime: '',
@@ -111,29 +121,76 @@ const ActivitiesManagementPage: React.FC = () => {
       locationAddress: '',
       isPublic: true,
       isFeatured: false,
+      imageUrl: '',
+      imageCaption: '',
+      imageFile: null,
     });
     setEditingActivity(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data = {
-      ...formData,
-      schedule: {
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        startTime: formData.startTime || undefined,
-        endTime: formData.endTime || undefined,
-      },
-      location: {
-        name: formData.locationName,
-        address: formData.locationAddress,
-      },
+
+    const schedule = {
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      startTime: formData.startTime || undefined,
+      endTime: formData.endTime || undefined,
     };
-    mutation.mutate(data);
+
+    const location = {
+      name: formData.locationName,
+      address: formData.locationAddress,
+    };
+
+    if (formData.imageFile) {
+      const formDataWithFile = new FormData();
+      formDataWithFile.append('image', formData.imageFile);
+      formDataWithFile.append('title', formData.title);
+      formDataWithFile.append('description', formData.description);
+      formDataWithFile.append('category', formData.category);
+      formDataWithFile.append('type', formData.type);
+      formDataWithFile.append('status', formData.status);
+      formDataWithFile.append('schedule', JSON.stringify(schedule));
+      formDataWithFile.append('location', JSON.stringify(location));
+      formDataWithFile.append('isPublic', formData.isPublic.toString());
+      formDataWithFile.append('isFeatured', formData.isFeatured.toString());
+      formDataWithFile.append('imageCaption', formData.imageCaption || formData.title || '');
+      formDataWithFile.append('approvalStatus', 'approved');
+
+      mutation.mutate(formDataWithFile);
+    } else {
+      const data = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        type: formData.type,
+        status: formData.status,
+        schedule,
+        location,
+        isPublic: formData.isPublic,
+        isFeatured: formData.isFeatured,
+        media: {
+          images: formData.imageUrl
+            ? [{ url: formData.imageUrl, caption: formData.imageCaption || '' }]
+            : [],
+        },
+        approvalStatus: 'approved'
+      };
+      mutation.mutate(data);
+    }
   };
 
   const handleEdit = (activity: Activity) => {
+    const formatDate = (dateStr: string) => {
+      if (!dateStr) return '';
+      try {
+        return new Date(dateStr).toISOString().split('T')[0];
+      } catch (err) {
+        return dateStr;
+      }
+    };
+
     setEditingActivity(activity);
     setFormData({
       title: activity.title,
@@ -141,14 +198,17 @@ const ActivitiesManagementPage: React.FC = () => {
       category: activity.category,
       type: activity.type,
       status: activity.status,
-      startDate: activity.schedule.startDate,
-      endDate: activity.schedule.endDate,
-      startTime: activity.schedule.startTime || '',
-      endTime: activity.schedule.endTime || '',
-      locationName: activity.location.name,
-      locationAddress: activity.location.address,
+      startDate: formatDate(activity.schedule?.startDate),
+      endDate: formatDate(activity.schedule?.endDate),
+      startTime: activity.schedule?.startTime || '',
+      endTime: activity.schedule?.endTime || '',
+      locationName: activity.location?.name || '',
+      locationAddress: activity.location?.address || '',
       isPublic: activity.isPublic,
       isFeatured: activity.isFeatured,
+      imageUrl: activity.media?.images?.[0]?.url || '',
+      imageCaption: activity.media?.images?.[0]?.caption || '',
+      imageFile: null,
     });
     setIsModalOpen(true);
   };
@@ -161,31 +221,33 @@ const ActivitiesManagementPage: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'published':
-        return 'bg-green-100 text-green-800';
-      case 'ongoing':
+      case 'planned':
         return 'bg-blue-100 text-blue-800';
+      case 'ongoing':
+        return 'bg-teal-100 text-teal-800';
       case 'completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-green-100 text-green-800';
       case 'cancelled':
         return 'bg-red-100 text-red-800';
-      default:
+      case 'postponed':
         return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'draft':
-        return 'Draft';
-      case 'published':
-        return 'Dipublikasi';
+      case 'planned':
+        return 'Rencana / Terjadwal';
       case 'ongoing':
         return 'Sedang Berlangsung';
       case 'completed':
         return 'Selesai';
       case 'cancelled':
         return 'Dibatalkan';
+      case 'postponed':
+        return 'Ditunda';
       default:
         return status;
     }
@@ -194,7 +256,7 @@ const ActivitiesManagementPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
       </div>
     );
   }
@@ -214,7 +276,7 @@ const ActivitiesManagementPage: React.FC = () => {
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
+            className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors"
           >
             + Tambah Kegiatan
           </button>
@@ -228,68 +290,98 @@ const ActivitiesManagementPage: React.FC = () => {
             </h2>
           </div>
 
-          {activities?.data?.length === 0 ? (
+          {!activities?.data?.activities || activities.data.activities.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               Belum ada kegiatan yang ditambahkan.
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {activities?.data?.map((activity: Activity) => (
-                <div key={activity.id} className="p-6 hover:bg-gray-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {activity.title}
-                        </h3>
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${getStatusColor(
-                            activity.status
-                          )}`}
-                        >
-                          {getStatusText(activity.status)}
-                        </span>
-                        {activity.isFeatured && (
-                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
-                            Featured
+              {activities.data.activities.map((activity: Activity) => {
+                const imageUrl = activity.media?.images?.[0]?.url;
+                const displayImage = imageUrl
+                  ? imageUrl.startsWith('http') || imageUrl.startsWith('/')
+                    ? imageUrl
+                    : `/uploads/${imageUrl}`
+                  : null;
+
+                return (
+                  <div key={activity._id || activity.id} className="p-6 hover:bg-gray-50">
+                    <div className="flex items-center justify-between gap-4">
+                      {displayImage && (
+                        <div className="w-16 h-16 flex-shrink-0 rounded overflow-hidden bg-gray-100 border border-gray-200">
+                          <img
+                            src={displayImage}
+                            alt={activity.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {activity.title}
+                          </h3>
+                          <span
+                            className={`px-2 py-1 text-xs rounded-full ${getStatusColor(
+                              activity.status
+                            )}`}
+                          >
+                            {getStatusText(activity.status)}
                           </span>
-                        )}
+                          {activity.isFeatured && (
+                            <span className="px-2 py-1 text-xs rounded-full bg-amber-100 text-amber-800">
+                              Featured
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                          {activity.description}
+                        </p>
+
+                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+                          <span>
+                            📅{' '}
+                            {activity.schedule?.startDate ? (
+                              (() => {
+                                try {
+                                  return new Date(activity.schedule.startDate).toLocaleDateString('id-ID');
+                                } catch (e) {
+                                  return activity.schedule.startDate;
+                                }
+                              })()
+                            ) : (
+                              'Tidak ada tanggal'
+                            )}
+                          </span>
+                          <span>📍 {activity.location?.name || 'Tidak ada lokasi'}</span>
+                          <span>🏷️ {activity.category || '-'}</span>
+                          <span>📋 {activity.type || '-'}</span>
+                        </div>
                       </div>
 
-                      <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                        {activity.description}
-                      </p>
-
-                      <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                        <span>
-                          📅{' '}
-                          {new Date(
-                            activity.schedule.startDate
-                          ).toLocaleDateString('id-ID')}
-                        </span>
-                        <span>📍 {activity.location.name}</span>
-                        <span>🏷️ {activity.category}</span>
-                        <span>📋 {activity.type}</span>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleEdit(activity)}
+                          className="bg-teal-600 text-white px-3 py-1 rounded text-sm hover:bg-teal-700 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(activity._id || activity.id || '')}
+                          className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+                        >
+                          Hapus
+                        </button>
                       </div>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEdit(activity)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(activity.id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors"
-                      >
-                        Hapus
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -314,7 +406,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       required
                     />
                   </div>
@@ -323,16 +415,25 @@ const ActivitiesManagementPage: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Kategori
                     </label>
-                    <input
-                      type="text"
+                    <select
                       value={formData.category}
                       onChange={(e) =>
-                        setFormData({ ...formData, category: e.target.value })
+                        setFormData({ ...formData, category: e.target.value as any })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      placeholder="Contoh: Pendidikan, Kesehatan, Olahraga"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
                       required
-                    />
+                    >
+                      <option value="pendidikan">Pendidikan</option>
+                      <option value="kesehatan">Kesehatan</option>
+                      <option value="olahraga">Olahraga</option>
+                      <option value="seni-budaya">Seni & Budaya</option>
+                      <option value="keterampilan">Keterampilan</option>
+                      <option value="sosial">Sosial</option>
+                      <option value="rekreasi">Rekreasi</option>
+                      <option value="keagamaan">Keagamaan</option>
+                      <option value="lingkungan">Lingkungan</option>
+                      <option value="lainnya">Lainnya</option>
+                    </select>
                   </div>
                 </div>
 
@@ -346,7 +447,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       setFormData({ ...formData, description: e.target.value })
                     }
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     required
                   />
                 </div>
@@ -364,12 +465,14 @@ const ActivitiesManagementPage: React.FC = () => {
                           type: e.target.value as any,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     >
+                      <option value="rutin">Rutin</option>
+                      <option value="khusus">Khusus</option>
                       <option value="event">Event</option>
-                      <option value="program">Program</option>
                       <option value="workshop">Workshop</option>
-                      <option value="competition">Kompetisi</option>
+                      <option value="kompetisi">Kompetisi</option>
+                      <option value="kunjungan">Kunjungan</option>
                     </select>
                   </div>
 
@@ -385,13 +488,13 @@ const ActivitiesManagementPage: React.FC = () => {
                           status: e.target.value as any,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     >
-                      <option value="draft">Draft</option>
-                      <option value="published">Dipublikasi</option>
+                      <option value="planned">Terjadwal / Rencana</option>
                       <option value="ongoing">Sedang Berlangsung</option>
                       <option value="completed">Selesai</option>
                       <option value="cancelled">Dibatalkan</option>
+                      <option value="postponed">Ditunda</option>
                     </select>
                   </div>
 
@@ -405,7 +508,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, startDate: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       required
                     />
                   </div>
@@ -422,7 +525,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, endDate: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       required
                     />
                   </div>
@@ -437,7 +540,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, startTime: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
 
@@ -451,7 +554,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, endTime: e.target.value })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                 </div>
@@ -470,7 +573,7 @@ const ActivitiesManagementPage: React.FC = () => {
                           locationName: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       placeholder="Contoh: Gedung YAPI Medan"
                       required
                     />
@@ -489,11 +592,75 @@ const ActivitiesManagementPage: React.FC = () => {
                           locationAddress: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
                       placeholder="Alamat lengkap lokasi"
                       required
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Upload Foto Kegiatan (Opsional)
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setFormData({ ...formData, imageFile: file });
+                      }}
+                      className="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Format: JPG, PNG, WEBP. Maksimal 2MB.
+                    </p>
+                    {formData.imageFile && (
+                      <div className="mt-2 flex items-center space-x-2">
+                        <span className="text-xs text-teal-600 font-semibold">Preview:</span>
+                        <img
+                          src={URL.createObjectURL(formData.imageFile)}
+                          alt="Preview"
+                          className="w-16 h-16 object-cover rounded border border-gray-200"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Atau URL Foto Dokumentasi (Opsional)
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.imageUrl}
+                      onChange={(e) =>
+                        setFormData({ ...formData, imageUrl: e.target.value })
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      placeholder="Contoh: /images/activities/yapi1.webp atau URL gambar"
+                      disabled={formData.imageFile !== null}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Diabaikan jika mengunggah file di sebelah kiri.
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Keterangan Foto Dokumentasi (Opsional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.imageCaption}
+                    onChange={(e) =>
+                      setFormData({ ...formData, imageCaption: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    placeholder="Keterangan singkat tentang foto ini"
+                  />
                 </div>
 
                 <div className="flex items-center space-x-4">
@@ -504,7 +671,7 @@ const ActivitiesManagementPage: React.FC = () => {
                       onChange={(e) =>
                         setFormData({ ...formData, isPublic: e.target.checked })
                       }
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">Publik</span>
                   </label>
@@ -519,7 +686,7 @@ const ActivitiesManagementPage: React.FC = () => {
                           isFeatured: e.target.checked,
                         })
                       }
-                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
                     <span className="ml-2 text-sm text-gray-700">Featured</span>
                   </label>
@@ -529,7 +696,7 @@ const ActivitiesManagementPage: React.FC = () => {
                   <button
                     type="submit"
                     disabled={mutation.isPending}
-                    className="flex-1 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                    className="flex-1 bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700 transition-colors disabled:opacity-50"
                   >
                     {mutation.isPending
                       ? 'Menyimpan...'
