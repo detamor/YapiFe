@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
     const fetchGallery = async () => {
       try {
         const res = await api.get('/activities', {
-          params: { limit: 20, status: 'completed' }
+          params: { limit: 20, sort: '-createdAt' }
         });
         
         let activitiesList = [];
