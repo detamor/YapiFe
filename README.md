@@ -1,26 +1,45 @@
-# YAPI Medan Frontend
+# YAPI Medan - Interactive Frontend Platform
+> **Modern, Premium, and Fully Responsive React & TypeScript Client for Yayasan Advent Peduli Indonesia (YAPI) Medan.**
 
-Frontend untuk platform donasi dan sosial YAPI Medan yang dibangun dengan React + TypeScript.
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-black?style=flat-square&logo=vercel)](https://natanaeldetamor.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![React Version](https://img.shields.io/badge/React-v18-blue?style=flat-square&logo=react)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Build Tool](https://img.shields.io/badge/Vite-Fast%20Build-purple?style=flat-square&logo=vite)](https://vitejs.dev/)
 
-## Fitur
+---
 
-- 🏠 **Beranda** - Landing page dengan informasi utama
-- 👥 **Anak-anak** - Daftar anak yang membutuhkan bantuan
-- 💰 **Donasi** - Form donasi dengan berbagai metode pembayaran
-- 📞 **Kontak** - Form kontak dan informasi
-- 🔐 **Autentikasi** - Login dan register user
-- 📊 **Dashboard Admin** - Panel admin untuk mengelola data
+## 🔗 Live Demo
+Check out the production platform here: **[https://natanaeldetamor.vercel.app/](https://natanaeldetamor.vercel.app/)**
 
-## Tech Stack
+---
 
-- **Framework**: React 18 + TypeScript
+## 📈 Key Frontend Highlights
+- **Stunning UI/UX Aesthetics**: Curated visual layouts using custom Tailwind configs, Inter typography, glassmorphism elements, custom loaders, and smooth React Hot Toast notifications.
+- **Robust State Management**: Powered by **TanStack Query (React Query)** for declarative data-fetching, optimistic updates, and cache synchronization with the backend REST API.
+- **Strict TypeScript Typing**: Full schema compliance and compile-time type-safety across all components, hooks, services, and state contexts.
+- **Dynamic Admin Dashboard**: Multi-role admin panels for managing children data, activities, sponsorships, testimonials, and audit reports.
+
+---
+
+## 🚀 Fitur Utama
+
+- 🏠 **Beranda** - Landing page interaktif dengan info yayasan, program terbaru, dan galeri kegiatan.
+- 👥 **Manajemen Anak Asuh** - Galeri profil anak asuh yang terperinci untuk kemudahan program donasi & sponsor.
+- 💰 **Sistem Donasi Dinamis** - Form donasi dengan pilihan jumlah custom, kategori terfokus, dan gateway pembayaran Midtrans/Stripe.
+- 🔐 **Autentikasi & Sesi Aman** - Sistem registrasi, login, dan logout dengan proteksi auto-login JWT token.
+- 📊 **Dashboard Admin Multi-Modul** - Panel visual admin untuk mengelola kegiatan anak, testimoni, dan monitoring audit log.
+
+## 🛠 Tech Stack
+
+- **Framework**: React 18 + TypeScript (Strict Mode)
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **State Management**: React Query (TanStack Query)
-- **Routing**: React Router DOM
-- **HTTP Client**: Axios
-- **Icons**: Heroicons
-- **Notifications**: React Hot Toast
+- **Styling**: Tailwind CSS & Vanilla CSS
+- **State Management**: TanStack Query (React Query)
+- **Routing**: React Router DOM (v6)
+- **HTTP Client**: Axios dengan global error interceptors
+- **Icons**: Heroicons & FontAwesome
+- **Notifications**: React Hot Toast untuk feedback real-time
 
 ## Struktur Proyek
 
@@ -135,14 +154,23 @@ Semua komponen menggunakan TypeScript dengan interface yang lengkap untuk:
 - Child information
 - API responses
 
-## Contributing
+## 📝 Conventional Commits & Git Guidelines
+
+Untuk menjaga kerapian riwayat commit, gunakan format **Conventional Commits**:
+- `feat: ...` untuk fitur baru (contoh: `feat: add toast transitions`)
+- `fix: ...` untuk perbaikan bug (contoh: `fix: typescript interface compliance for Donation`)
+- `chore: ...` untuk update dependency atau konfigurasi build (contoh: `chore: config tailwind shades`)
+- `docs: ...` untuk pembaharuan README (contoh: `docs: add vercel badge`)
+
+## 📝 Contributing
 
 1. Fork repository
-2. Buat feature branch
-3. Commit changes
-4. Push ke branch
+2. Buat feature branch (`git checkout -b feat/amazing-feature`)
+3. Commit changes menggunakan format conventional commit
+4. Push ke branch (`git push origin feat/amazing-feature`)
 5. Buat Pull Request
 
-## License
+## 📄 License
 
-MIT License
+MIT License - copyright (c) 2026.
+
