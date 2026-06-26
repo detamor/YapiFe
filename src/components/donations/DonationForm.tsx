@@ -182,8 +182,8 @@ const DonationForm: React.FC = () => {
 
     try {
       if (formData.paymentMethod === 'midtrans') {
-        // Pemicu pembayaran otomatis via Midtrans Snap
-        const response = await api.post('/payments/midtrans/create-transaction', {
+        // Pemicu pembayaran otomatis via Xendit Invoice
+        const response = await api.post('/payments/xendit/create-invoice', {
           amount: formData.amount,
           donaturInfo: {
             name: sanitizedName,
@@ -197,33 +197,13 @@ const DonationForm: React.FC = () => {
           isRecurring: formData.type !== 'one-time'
         });
 
-        const { snapToken, redirectUrl } = response.data?.data || {};
+        const { redirectUrl } = response.data?.data || {};
 
-        if (snapToken) {
-          if ((window as any).snap) {
-            (window as any).snap.pay(snapToken, {
-              onSuccess: function(result: any) {
-                toast.success('Pembayaran berhasil!');
-                navigate(`/donations/status?order_id=${result.order_id}`);
-              },
-              onPending: function(result: any) {
-                toast.success('Menunggu penyelesaian pembayaran Anda.');
-                navigate(`/donations/status?order_id=${result.order_id}`);
-              },
-              onError: function(result: any) {
-                toast.error('Pembayaran gagal diproses.');
-                navigate(`/donations/status?order_id=${result.order_id}`);
-              },
-              onClose: function() {
-                toast.error('Pop-up pembayaran ditutup sebelum transaksi selesai.');
-              }
-            });
-          } else {
-            toast.success('Mengalihkan ke halaman pembayaran Midtrans...');
-            window.location.href = redirectUrl;
-          }
+        if (redirectUrl) {
+          toast.success('Mengalihkan ke halaman pembayaran aman Xendit...');
+          window.location.href = redirectUrl;
         } else {
-          throw new Error('Gagal mendapatkan token transaksi dari Midtrans');
+          throw new Error('Gagal mendapatkan URL transaksi dari Xendit');
         }
       } else {
         // Transfer Bank Manual
