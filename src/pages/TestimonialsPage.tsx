@@ -95,7 +95,7 @@ const TestimonialsPage: React.FC = () => {
     return roleColors[role.toLowerCase()] || 'bg-gray-100 text-gray-800';
   };
 
-  const dbTestimonials = data?.data?.testimonials || data?.data?.items || [];
+  const dbTestimonials = (data?.data as any)?.testimonials || data?.data?.items || [];
   const displayTestimonials = dbTestimonials.length > 0 ? dbTestimonials : mockTestimonials;
 
   return (

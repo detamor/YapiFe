@@ -184,16 +184,17 @@ const ChildrenManagementPage: React.FC = () => {
 
       // Add other data fields
       Object.keys(data).forEach((key) => {
+        const val = (data as any)[key];
         if (
           key === 'skills' ||
           key === 'background' ||
           key === 'currentStatus'
         ) {
-          formDataWithFile.append(key, JSON.stringify(data[key]));
-        } else if (typeof data[key] === 'boolean') {
-          formDataWithFile.append(key, data[key].toString());
+          formDataWithFile.append(key, JSON.stringify(val));
+        } else if (typeof val === 'boolean') {
+          formDataWithFile.append(key, val.toString());
         } else {
-          formDataWithFile.append(key, data[key]);
+          formDataWithFile.append(key, val);
         }
       });
 
@@ -295,7 +296,7 @@ const ChildrenManagementPage: React.FC = () => {
             console.log(
               '🔍 Children with images:',
               childrenArray.filter(
-                (child) => child.images && child.images.length > 0
+                (child: any) => child.images && child.images.length > 0
               )
             );
 
@@ -312,14 +313,19 @@ const ChildrenManagementPage: React.FC = () => {
                     className="bg-white rounded-lg shadow-lg overflow-hidden"
                   >
                     <div className="h-48 bg-gray-200 flex items-center justify-center overflow-hidden">
-                      {child.images?.[0]?.url ? (
+                      {child.images?.[0] ? (
                         <img
                           src={
-                            child.images[0].url.startsWith('http')
-                              ? child.images[0].url
-                              : child.images[0].url.startsWith('/uploads')
-                              ? child.images[0].url
-                              : `/uploads${child.images[0].url}`
+                            (() => {
+                              const img = child.images[0] as any;
+                              const url = typeof img === 'object' && img !== null ? img.url : img;
+                              if (!url) return '';
+                              return url.startsWith('http')
+                                ? url
+                                : url.startsWith('/uploads')
+                                ? url
+                                : `/uploads${url}`;
+                            })()
                           }
                           alt={child.name}
                           className="w-full h-full object-cover"

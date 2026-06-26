@@ -99,7 +99,7 @@ const ChildrenPage: React.FC = () => {
           <p className="mt-4 text-base text-ink-soft max-w-xl mx-auto font-sans leading-relaxed">
             Pilih dan kenali adik asuh yang ingin Anda sponsori. Dukungan finansial Anda menjamin pendidikan dan masa depan mereka.
           </p>
-          {error && (
+          {!!error && (
             <div className="mt-4 p-3 bg-coral/10 border border-coral/30 rounded-md max-w-md mx-auto">
               <p className="text-coral text-sm">
                 Gagal memuat data dari server. Menampilkan data lokal jika tersedia.
@@ -182,7 +182,7 @@ const ChildrenPage: React.FC = () => {
 
         {/* Children Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayChildren.map((child) => (
+          {displayChildren.map((child: any) => (
             <ChildCard key={child.id} child={child} />
           ))}
         </div>

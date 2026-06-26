@@ -9,7 +9,11 @@ interface TestimonialFormData {
   message: string;
 }
 
-const TestimonialForm: React.FC = () => {
+interface TestimonialFormProps {
+  onSuccess?: () => void;
+}
+
+const TestimonialForm: React.FC<TestimonialFormProps> = ({ onSuccess }) => {
   const [formData, setFormData] = useState<TestimonialFormData>({
     name: '',
     email: '',
@@ -85,6 +89,7 @@ const TestimonialForm: React.FC = () => {
         message: '',
       });
       setErrors({});
+      if (onSuccess) onSuccess();
     } catch (error) {
       toast.error(
         'Terjadi kesalahan saat mengirim testimoni. Silakan coba lagi.'

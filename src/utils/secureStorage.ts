@@ -48,7 +48,7 @@ export class SecureLocalStorage {
           return JSON.parse(decryptedValue);
         } catch {
           // If not JSON, return as string
-          return decryptedValue;
+          return decryptedValue as any;
         }
       } catch (decryptError) {
         console.log(

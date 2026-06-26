@@ -137,8 +137,8 @@ const DonaturDashboardPage: React.FC = () => {
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
                   {formatCurrency(
-                    donationsData?.data?.donations?.reduce(
-                      (sum: number, d: Donation) =>
+                    (donationsData?.data?.donations || []).reduce(
+                      (sum: any, d: any) =>
                         sum + (d.status === 'approved' ? d.amount : 0),
                       0
                     ) || 0
@@ -156,7 +156,7 @@ const DonaturDashboardPage: React.FC = () => {
                   Anak Dibantu
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {childrenData?.data?.children?.length || 0}
+                  {((childrenData?.data as any)?.children || childrenData?.data?.items || []).length}
                 </p>
               </div>
             </div>
@@ -250,7 +250,7 @@ const DonaturDashboardPage: React.FC = () => {
           ) : (
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {childrenData?.data?.children?.map((child: Child) => (
+                {((childrenData?.data as any)?.children || childrenData?.data?.items || []).map((child: Child) => (
                   <div
                     key={child.id}
                     className="border rounded-lg p-4 hover:shadow-md transition-shadow"
@@ -345,7 +345,7 @@ const DonaturDashboardPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {donationsData?.data?.donations?.map((donation: Donation) => (
+                  {(donationsData?.data?.donations || []).map((donation: any) => (
                     <tr key={donation.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {new Date(donation.createdAt).toLocaleDateString(
@@ -412,7 +412,7 @@ const DonaturDashboardPage: React.FC = () => {
                 </button>
               </div>
 
-              <DonationForm onSubmit={handleCreateDonation} />
+              <DonationForm />
             </div>
           </div>
         </div>
