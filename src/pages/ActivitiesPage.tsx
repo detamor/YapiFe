@@ -268,7 +268,7 @@ const ActivitiesPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {displayActivities.map((activity: any) => {
               const mainImage = activity.media?.images?.[0]?.url || activity.image || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600';
-              const displayImage = mainImage.startsWith('http') || mainImage.startsWith('/') ? mainImage : `/uploads/${mainImage}`;
+              const displayImage = mainImage.startsWith('http') || mainImage.startsWith('/') || mainImage.startsWith('data:') ? mainImage : `/uploads/${mainImage}`;
               
               const dateText = activity.schedule?.startDate
                 ? (() => {
@@ -378,7 +378,7 @@ const ActivitiesPage: React.FC = () => {
               <img
                 src={(() => {
                   const img = selectedActivity.media?.images?.[0]?.url || selectedActivity.image || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600';
-                  return img.startsWith('http') || img.startsWith('/') ? img : `/uploads/${img}`;
+                  return img.startsWith('http') || img.startsWith('/') || img.startsWith('data:') ? img : `/uploads/${img}`;
                 })()}
                 alt={selectedActivity.title}
                 className="w-full h-full object-cover"

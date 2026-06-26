@@ -89,7 +89,7 @@ const ChildDetailPage: React.FC = () => {
             <div className="bg-white rounded-lg border border-parchment-dim overflow-hidden shadow-sm p-4">
               <div className="relative aspect-square w-full rounded-md overflow-hidden bg-gray-100 mb-4">
                 <img
-                  src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') ? mainImage : `/uploads/${mainImage}`)}
+                  src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') || mainImage.startsWith('data:') ? mainImage : `/uploads/${mainImage}`)}
                   alt={child.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {

@@ -308,7 +308,7 @@ const HomePage: React.FC = () => {
                   <div key={child.id} className="card bg-white border border-parchment-dim hover-scale flex flex-col h-full shadow-sm hover:shadow-md transition-all duration-300">
                     <div className="relative h-60 overflow-hidden">
                       <img
-                        src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') ? mainImage : `/uploads/${mainImage}`)}
+                        src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') || mainImage.startsWith('data:') ? mainImage : `/uploads/${mainImage}`)}
                         alt={child.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {

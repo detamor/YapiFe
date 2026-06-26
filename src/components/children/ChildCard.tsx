@@ -23,7 +23,7 @@ const ChildCard: React.FC<ChildCardProps> = ({ child }) => {
           src={
             !mainImage
               ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400'
-              : mainImage.startsWith('http') || mainImage.startsWith('/')
+              : mainImage.startsWith('http') || mainImage.startsWith('/') || mainImage.startsWith('data:')
               ? mainImage
               : `/uploads/${mainImage}`
           }

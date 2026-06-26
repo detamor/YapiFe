@@ -320,7 +320,7 @@ const ChildrenManagementPage: React.FC = () => {
                               const img = child.images[0] as any;
                               const url = typeof img === 'object' && img !== null ? img.url : img;
                               if (!url) return '';
-                              return url.startsWith('http')
+                              return url.startsWith('http') || url.startsWith('data:')
                                 ? url
                                 : url.startsWith('/uploads')
                                 ? url
@@ -339,7 +339,7 @@ const ChildrenManagementPage: React.FC = () => {
                       ) : child.images?.[0] ? (
                         <img
                           src={
-                            child.images[0].startsWith('http')
+                            child.images[0].startsWith('http') || child.images[0].startsWith('data:')
                               ? child.images[0]
                               : child.images[0].startsWith('/uploads')
                               ? child.images[0]

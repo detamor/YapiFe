@@ -192,7 +192,7 @@ const SponsorshipManagementPage: React.FC = () => {
                           <div className="flex items-center">
                             <div className="h-10 w-10 flex-shrink-0 rounded-full overflow-hidden bg-gray-100 border border-parchment-dim">
                               <img
-                                src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') ? mainImage : `/uploads/${mainImage}`)}
+                                src={!mainImage ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400' : (mainImage.startsWith('http') || mainImage.startsWith('/') || mainImage.startsWith('data:') ? mainImage : `/uploads/${mainImage}`)}
                                 alt={child.name}
                                 className="h-full w-full object-cover"
                                 onError={(e) => {

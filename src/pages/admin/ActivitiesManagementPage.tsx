@@ -299,7 +299,7 @@ const ActivitiesManagementPage: React.FC = () => {
               {activities.data.activities.map((activity: Activity) => {
                 const imageUrl = activity.media?.images?.[0]?.url;
                 const displayImage = imageUrl
-                  ? imageUrl.startsWith('http') || imageUrl.startsWith('/')
+                  ? imageUrl.startsWith('http') || imageUrl.startsWith('/') || imageUrl.startsWith('data:')
                     ? imageUrl
                     : `/uploads/${imageUrl}`
                   : null;
