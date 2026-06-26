@@ -9,12 +9,17 @@ import {
 } from '@heroicons/react/24/outline';
 
 const DashboardStats: React.FC = () => {
+  const getHealthUrl = () => {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    return baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) + '/health' : `${baseUrl}/health`;
+  };
+
   // Test backend connection
   useEffect(() => {
     const testBackend = async () => {
       try {
         console.log('🔍 Testing backend connection...');
-        const response = await fetch('http://localhost:5000/health');
+        const response = await fetch(getHealthUrl());
         const data = await response.json();
         console.log('✅ Backend health check:', data);
       } catch (error) {
@@ -179,7 +184,7 @@ const DashboardStats: React.FC = () => {
                   <button
                     onClick={() => {
                       console.log('🔍 Testing backend connection manually...');
-                      fetch('http://localhost:5000/health')
+                      fetch(getHealthUrl())
                         .then((res) => res.json())
                         .then((data) => {
                           console.log('✅ Backend is running:', data);
@@ -188,7 +193,7 @@ const DashboardStats: React.FC = () => {
                         .catch((err) => {
                           console.error('❌ Backend connection failed:', err);
                           alert(
-                            'Backend tidak dapat diakses. Pastikan server berjalan di port 5000.'
+                            'Backend tidak dapat diakses. Pastikan server berjalan.'
                           );
                         });
                     }}
